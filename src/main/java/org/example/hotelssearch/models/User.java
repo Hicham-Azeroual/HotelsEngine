@@ -1,12 +1,13 @@
 package org.example.hotelssearch.models;
 
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 
 public class User {
     private String username;  // Unique identifier
     private String email;     // User's email
     private String password;  // Hashed password
-    private Instant createdAt; // Timestamp of account creation
+    private String createdAt; // Timestamp of account creation as a string
     private String role;      // User role, default is "user"
 
     // Constructor
@@ -14,7 +15,7 @@ public class User {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.createdAt = Instant.now(); // Set the creation time to the current time
+        this.createdAt = DateTimeFormatter.ISO_INSTANT.format(Instant.now()); // Set the creation time to the current time as a string
         this.role = "user"; // Default role is "user"
     }
 
@@ -47,11 +48,11 @@ public class User {
         this.password = password;
     }
 
-    public Instant getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Instant createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -74,4 +75,3 @@ public class User {
                 '}';
     }
 }
-

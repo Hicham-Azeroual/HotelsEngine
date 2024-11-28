@@ -1,6 +1,11 @@
 package org.example.hotelssearch.services;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.ExistsQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
+import co.elastic.clients.elasticsearch.core.CountRequest;
+import co.elastic.clients.elasticsearch.core.CountResponse;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
@@ -308,90 +313,6 @@ public class HotelService {
         return matchingHotels;
     }
 
-
-
-
-
-
-    public static String buildGlobalQuery(String searchTerm, float minRating, float maxPrice) throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        // Build individual query components
-        Map<String, Object> matchCondition = Map.of(
-                "name", searchTerm,   // Match on hotel name
-                "description", searchTerm // Optional: Match on description
-        );
-        Map<String, Object> rangeConditionRating = Map.of(
-                "overall_rating", Map.of("gte", minRating)
-        );
-        Map<String, Object> rangeConditionPrice = Map.of(
-                "lowest_rate", Map.of("lte", maxPrice)
-        );
-
-        // Combine them using a bool query
-        Map<String, Object> boolQuery = Map.of(
-                "must", List.of(
-                        Map.of("match", matchCondition),
-                        Map.of("range", rangeConditionRating),
-                        Map.of("range", rangeConditionPrice)
-
-                )
-        );
-
-        Map<String, Object> query = Map.of(
-                "bool", boolQuery
-        );
-
-        return objectMapper.writeValueAsString(query);
-    }
-
-    // Unified search function
-    public List<Hotel> searchHotels(String searchTerm, float minRating, float maxPrice) {
-        List<Hotel> matchingHotels = new ArrayList<>();
-
-        try {
-            // Generate the query JSON
-            String queryJson = buildGlobalQuery(searchTerm, minRating, maxPrice);
-            System.out.println("Generated query: " + queryJson);
-
-            // Parse JSON into Elasticsearch Query object
-            JsonReader jsonReader = Json.createReader(new StringReader(queryJson));
-            JsonObject queryJsonObject = jsonReader.readObject();
-            JsonParser parser = Json.createParser(new StringReader(queryJsonObject.toString()));
-            Query query = Query.of(builder -> builder.withJson(parser, client._transport().jsonpMapper()));
-
-            // Execute the search request
-            SearchRequest searchRequest = SearchRequest.of(s -> s
-                    .index("hotels")
-                    .query(query)
-            );
-
-            SearchResponse<Hotel> response = client.search(searchRequest, Hotel.class);
-
-            // Extract hits and map to Hotel objects
-            for (Hit<Hotel> hit : response.hits().hits()) {
-                matchingHotels.add(hit.source());
-            }
-
-            // Display results
-            if (matchingHotels.isEmpty()) {
-                System.out.println("No hotels match your search criteria.");
-            } else {
-                System.out.println("Matching hotels:");
-                matchingHotels.forEach(System.out::println);
-            }
-        } catch (IOException e) {
-            System.err.println("Error searching hotels: " + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("Error building query: " + e.getMessage());
-        }
-
-        return matchingHotels;
-    }
-
-
-
-
     public static String buildQuery(String searchTerm, Float minRating, Float maxPrice, Double latitude, Double longitude, Double radiusInKm, List<String> amenities) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -509,6 +430,149 @@ public class HotelService {
             }
         }
     }    // Close the Elasticsearch client connection
+    // Method to perform aggregation query and return the results
+
+    public static String buildRatingDistributionQuery() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        // Build the aggregation query
+        Map<String, Object> rangeAggregation = Map.of(
+                "field", "overall_rating",
+                "ranges", List.of(
+                        Map.of("key", "1-2", "to", 2.0),
+                        Map.of("key", "2-3", "from", 2.0, "to", 3.0),
+                        Map.of("key", "3-4", "from", 3.0, "to", 4.0),
+                        Map.of("key", "4-5", "from", 4.0, "to", 5.0)
+                )
+        );
+
+        Map<String, Object> aggregation = Map.of(
+                "rating_ranges", Map.of("range", rangeAggregation)
+        );
+
+        // Add a filter to include only documents that have a rating (field "overall_rating" exists)
+        Map<String, Object> query = Map.of(
+                "size", 0,
+                "query", Map.of(
+                        "exists", Map.of("field", "overall_rating")  // Filter out documents without a rating
+                ),
+                "aggs", aggregation
+        );
+
+        // Convert map to JSON string
+        return objectMapper.writeValueAsString(query);
+    }
+
+    // Method to perform aggregation query and return the results
+    public Map<String, Double> getRatingDistribution() {
+        Map<String, Double> ratingDistribution = new HashMap<>();
+
+        try {
+            // Build the aggregation query
+            String queryJson = buildRatingDistributionQuery();
+
+            // Parse the JSON query into a SearchRequest object
+            JsonReader jsonReader = Json.createReader(new StringReader(queryJson));
+            JsonObject queryJsonObject = jsonReader.readObject();
+            JsonParser parser = Json.createParser(new StringReader(queryJsonObject.toString()));
+            SearchRequest searchRequest = SearchRequest.of(builder -> builder.withJson(parser, client._transport().jsonpMapper()));
+
+            // Execute the search query
+            SearchResponse<Void> response = client.search(searchRequest, Void.class);
+
+            // Extract the aggregation results
+            var ratingRanges = response.aggregations().get("rating_ranges").range().buckets().array();
+
+            // Calculate the total number of hotels by summing the doc_count values
+            long totalHotels = 0;
+            for (var bucket : ratingRanges) {
+                long docCount = bucket.docCount();
+                totalHotels += docCount;
+            }
+
+            // Now calculate the percentage for each bucket
+            for (var bucket : ratingRanges) {
+                String key = bucket.key();
+                long docCount = bucket.docCount();
+                double percentage = (docCount * 100.0) / totalHotels;
+                ratingDistribution.put(key, percentage);
+            }
+
+            // Display the results in the console
+            System.out.println("Rating Distribution:");
+            ratingDistribution.forEach((key, percentage) -> System.out.println(key + ": " + percentage + "%"));
+
+        } catch (IOException e) {
+            System.err.println("Error performing aggregation query: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error building query: " + e.getMessage());
+        }
+
+        return ratingDistribution;
+    }
+
+    public long getTotalNumberOfHotels() {
+        try {
+            CountRequest countRequest = CountRequest.of(c -> c
+                    .index("hotels")
+            );
+
+            CountResponse response = client.count(countRequest);
+            return response.count();
+        } catch (IOException e) {
+            System.err.println("Error getting total number of hotels: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    // Method to get the number of hotels with missing data
+    public long getNumberOfHotelsWithMissingData() {
+        try {
+            BoolQuery.Builder boolQuery = new BoolQuery.Builder();
+
+            // Check for missing fields
+            boolQuery.should(s -> s.bool(b -> b
+                    .mustNot(m -> m.exists(ExistsQuery.of(e -> e.field("name"))))
+                    .mustNot(m -> m.exists(ExistsQuery.of(e -> e.field("overall_rating"))))
+                    .mustNot(m -> m.exists(ExistsQuery.of(e -> e.field("reviews"))))
+            ));
+
+            // Check for empty strings (only for text fields)
+            boolQuery.should(s -> s.term(TermQuery.of(t -> t.field("name").value(""))));
+
+            // Check for zero values (for numeric fields)
+            boolQuery.should(s -> s.term(TermQuery.of(t -> t.field("overall_rating").value(0.0))));
+            boolQuery.should(s -> s.term(TermQuery.of(t -> t.field("reviews").value(0))));
+
+            CountRequest countRequest = CountRequest.of(c -> c
+                    .index("hotels")
+                    .query(boolQuery.build()._toQuery())
+            );
+
+            CountResponse response = client.count(countRequest);
+            return response.count();
+        } catch (IOException e) {
+            System.err.println("Error getting number of hotels with missing data: " + e.getMessage());
+            return 0;
+        }
+    }    // Method to get the total number of reviews
+    public long getTotalNumberOfReviews() {
+        try {
+            SearchRequest searchRequest = SearchRequest.of(s -> s
+                    .index("hotels")
+                    .size(0)
+                    .aggregations("total_reviews", a -> a
+                            .sum(q -> q.field("reviews"))
+                    )
+            );
+
+            SearchResponse<Void> response = client.search(searchRequest, Void.class);
+            return (long) response.aggregations().get("total_reviews").sum().value();
+        } catch (IOException e) {
+            System.err.println("Error getting total number of reviews: " + e.getMessage());
+            return 0;
+        }
+    }
     public void closeClient() {
         ElasticsearchConnection.closeClient();
         System.out.println("Elasticsearch client closed.");

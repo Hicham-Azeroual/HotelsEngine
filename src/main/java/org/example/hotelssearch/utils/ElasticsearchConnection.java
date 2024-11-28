@@ -21,7 +21,7 @@ import java.security.cert.X509Certificate;
 
 public class ElasticsearchConnection {
     private static final String SERVER_URL = "https://localhost:9200";
-    private static final String API_KEY = "UVJnYzNwSUJjWTNfdERqbElkY206RXBoSnU3WWhUcU8xS3NiWlI1NC1pQQ==";
+    private static final String API_KEY = "Mnpoc2NwTUJCS0J3dEdCQVgtbWo6RjVGNzdPYmdSdE93NVNVUVotV3M0QQ==";
     private static ElasticsearchClient esClient;
 
     // Initialize Elasticsearch Client
@@ -108,7 +108,7 @@ public class ElasticsearchConnection {
             // Close the client
             closeClient();
         } catch (Exception e) {
-            System.err.println("Error initializing or testing Elasticsearch connection: " + e.getMessage());
+            System.err.println("Error u initializing or testing Elasticsearch connection: " + e.getMessage());
             e.printStackTrace();
         }
     }

@@ -1,0 +1,8 @@
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.hotelssearch.controllers.PieChartController">
+    <center>
+        <PieChart fx:id="ratingPieChart" title="Hotel Rating Distribution"/>
+    </center>
+</BorderPane>
