@@ -14,6 +14,16 @@ import java.util.List;
 public class UserService {
 
     private static final String INDEX_NAME = "users";
+    private final ElasticsearchClient client;
+
+    public UserService() {
+        try {
+            ElasticsearchConnection.initializeClient();  // Explicitly initialize the client
+            this.client = ElasticsearchConnection.getClient();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize Elasticsearch client", e);
+        }
+    }
 
     // Method to sign up a new user
     public void signUp(User user) throws Exception {
@@ -37,7 +47,7 @@ public class UserService {
 
     // Method to create a new user
     public void createUser(User user) throws Exception {
-        ElasticsearchClient client = ElasticsearchConnection.getClient();
+
         IndexRequest<User> request = new IndexRequest.Builder<User>()
                 .index(INDEX_NAME)
                 .id(user.getUsername())
@@ -55,7 +65,6 @@ public class UserService {
 
     // Method to get a user by username
     public User getUserByUsername(String username) throws Exception {
-        ElasticsearchClient client = ElasticsearchConnection.getClient();
         GetRequest request = new GetRequest.Builder()
                 .index(INDEX_NAME)
                 .id(username)
@@ -77,7 +86,6 @@ public class UserService {
 
     // Method to update a user
     public void updateUser(User user) throws Exception {
-        ElasticsearchClient client = ElasticsearchConnection.getClient();
         UpdateRequest<User, User> request = new UpdateRequest.Builder<User, User>()
                 .index(INDEX_NAME)
                 .id(user.getUsername())
@@ -95,7 +103,6 @@ public class UserService {
 
     // Method to delete a user by username
     public void deleteUserByUsername(String username) throws Exception {
-        ElasticsearchClient client = ElasticsearchConnection.getClient();
         DeleteRequest request = new DeleteRequest.Builder()
                 .index(INDEX_NAME)
                 .id(username)
@@ -112,7 +119,6 @@ public class UserService {
 
     // Method to search users by email
     public List<User> searchUsersByEmail(String email) throws Exception {
-        ElasticsearchClient client = ElasticsearchConnection.getClient();
         SearchRequest request = new SearchRequest.Builder()
                 .index(INDEX_NAME)
                 .query(q -> q

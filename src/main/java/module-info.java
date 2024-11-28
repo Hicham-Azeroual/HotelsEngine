@@ -13,9 +13,7 @@ module org.example.hotelssearch {
     requires jbcrypt;
 
     opens org.example.hotelssearch.controllers to javafx.fxml; // Allow JavaFX to access the controllers package
-    exports org.example.hotelssearch;  // Export the main package
     exports org.example.hotelssearch.models;  // Export the models package
     exports org.example.hotelssearch.utils;
-    exports org.example.hotelssearch.controllers;
 
 }
