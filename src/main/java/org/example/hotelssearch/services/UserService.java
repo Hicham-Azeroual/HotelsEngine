@@ -26,14 +26,15 @@ public class UserService {
     }
 
     // Method to sign up a new user
-    public void signUp(User user) throws Exception {
+    public boolean signUp(User user) throws Exception {
         // Check if the user already exists
         if (getUserByUsername(user.getUsername()) != null) {
-            throw new Exception("User already exists");
+            return  false;
         }
 
         // Create the new user
         createUser(user);
+        return true;
     }
 
     // Method to sign in a user

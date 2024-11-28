@@ -2,6 +2,7 @@ package org.example.hotelssearch.views;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
@@ -12,14 +13,13 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         try {
             // Load the FXML file
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/pieChart.fxml"));
-            BorderPane root = loader.load();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/hello-view.fxml"));
+            AnchorPane root = loader.load();
 
             // Create a scene
-            Scene scene = new Scene(root, 1200, 700);
+            Scene scene = new Scene(root);
 
             // Load and apply the CSS stylesheet
-            scene.getStylesheets().add(getClass().getResource("/styles/dashboard.css").toExternalForm());
 
             // Set the title and display the stage
             primaryStage.setTitle("Dashboard");
