@@ -12,11 +12,11 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         try {
             // Load the FXML file
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/pieChart.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashborad.fxml"));
             BorderPane root = loader.load();
 
             // Create a scene
-            Scene scene = new Scene(root, 1200, 700);
+            Scene scene = new Scene(root, 1099, 724);
 
             // Load and apply the CSS stylesheet
             scene.getStylesheets().add(getClass().getResource("/styles/dashboard.css").toExternalForm());
