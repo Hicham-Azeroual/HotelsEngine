@@ -1,27 +1,35 @@
 package org.example.hotelssearch.views;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-
+import javafx.fxml.FXMLLoader;
 import java.io.IOException;
-
 public class Main extends Application {
-    @Override
-    public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/fxml/hello-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("LuxeStay");
-        stage.setMinWidth(640);
-        stage.setMinHeight(414);
-        stage.setMaxWidth(700);
-        stage.setMaxHeight(414);
-        stage.setScene(scene);
-        stage.show();
-    }
 
+    @Override
+    public void start(Stage primaryStage) {
+        try {
+            // Load the FXML file
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/pieChart.fxml"));
+            BorderPane root = loader.load();
+
+            // Create a scene
+            Scene scene = new Scene(root, 1200, 700);
+
+            // Load and apply the CSS stylesheet
+            scene.getStylesheets().add(getClass().getResource("/styles/dashboard.css").toExternalForm());
+
+            // Set the title and display the stage
+            primaryStage.setTitle("Dashboard");
+            primaryStage.setScene(scene);
+            primaryStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 }

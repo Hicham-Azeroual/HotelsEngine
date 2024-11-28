@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="724.0" prefWidth="1099.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1">
+    <top>
+        <HBox spacing="10.0" style="-fx-padding: 10;" BorderPane.alignment="CENTER">
+            <children>
+                <!-- Left: Logo -->
+                <VBox alignment="CENTER" prefHeight="86.0" prefWidth="318.0">
+                    <children>
+                        <ImageView fitHeight="66.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="https://img.lovepik.com/element/45012/5571.png_860.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                </VBox>
+
+                <!-- Center: Search Bar -->
+                <HBox alignment="CENTER" prefHeight="86.0" prefWidth="774.0" spacing="5.0" style="-fx-padding: 10;">
+                    <children>
+                        <TextField promptText="Search..." style="-fx-pref-height: 35; -fx-pref-width: 400; -fx-border-radius: 5px;" />
+                        <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="https://cdn-icons-png.flaticon.com/512/751/751463.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                </HBox>
+
+                <!-- Right: Notification and Profile -->
+                <HBox alignment="CENTER" prefHeight="86.0" prefWidth="266.0" spacing="15.0">
+                    <children>
+                        <ImageView fitHeight="45.0" fitWidth="51.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="https://cdn-icons-png.flaticon.com/512/1946/1946404.png" />
+                            </image>
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                        </ImageView>
+                        <ImageView fitHeight="35.0" fitWidth="52.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                </HBox>
+            </children>
+        </HBox>
+    </top>
+
+    <left>
+        <VBox prefHeight="634.0" prefWidth="232.0" style="-fx-background-color: #f4f4f4;" BorderPane.alignment="CENTER">
+            <children>
+                <ScrollPane fitToWidth="true" prefHeight="631.0" prefWidth="261.0" style="-fx-padding: 10;">
+                    <content>
+                        <VBox minHeight="200.0" prefHeight="606.0" prefWidth="201.0" spacing="10.0" style="-fx-padding: 10;">
+                            <children>
+                                <Button prefHeight="34.0" prefWidth="182.0" styleClass="sidebar-button" text="Dashboard">
+                                    <graphic>
+                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="https://cdn-icons-png.flaticon.com/512/8899/8899687.png" />
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="20.0" />
+                           </VBox.margin>
+                                </Button>
+
+                                <Button prefHeight="34.0" prefWidth="184.0" styleClass="sidebar-button" text="Hotels">
+                                    <graphic>
+                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="https://cdn-icons-png.freepik.com/256/1668/1668966.png?semt=ais_hybrid" />
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="20.0" />
+                           </VBox.margin>
+                                </Button>
+
+                                <Button prefHeight="34.0" prefWidth="184.0" styleClass="sidebar-button" text="Configuration">
+                                    <graphic>
+                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="https://cdn-icons-png.flaticon.com/512/12287/12287313.png" />
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="20.0" />
+                           </VBox.margin>
+                                </Button>
+
+                                <Button prefHeight="34.0" prefWidth="185.0" styleClass="sidebar-button" text="Log out">
+                                    <graphic>
+                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="https://cdn-icons-png.flaticon.com/512/9653/9653907.png" />
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="20.0" />
+                           </VBox.margin>
+                                </Button>
+                            </children>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </children>
+        </VBox>
+    </left>
+</BorderPane>
