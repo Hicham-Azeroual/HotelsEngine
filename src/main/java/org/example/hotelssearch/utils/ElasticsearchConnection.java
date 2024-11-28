@@ -21,7 +21,7 @@ import java.security.cert.X509Certificate;
 
 public class ElasticsearchConnection {
     private static final String SERVER_URL = "https://localhost:9200";
-    private static final String API_KEY = "UVJnYzNwSUJjWTNfdERqbElkY206RXBoSnU3WWhUcU8xS3NiWlI1NC1pQQ==";
+    private static final String API_KEY = "WXZlbmFKTUI0RnlhVjIyMXllS2c6Rldia2JXOTdUcWE5Tk5qRmxhOXBVZw==";
     private static ElasticsearchClient esClient;
 
     // Initialize Elasticsearch Client

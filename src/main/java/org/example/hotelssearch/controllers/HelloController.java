@@ -1,4 +1,4 @@
-package org.example.hotelssearch;
+package org.example.hotelssearch.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

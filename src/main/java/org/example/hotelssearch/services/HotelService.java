@@ -1,6 +1,7 @@
 package org.example.hotelssearch.services;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class HotelService {
     private final ElasticsearchClient client;
@@ -509,6 +511,34 @@ public class HotelService {
             }
         }
     }    // Close the Elasticsearch client connection
+
+    public List<String> getTop10Hotels() throws Exception {
+        SearchRequest request = SearchRequest.of(builder -> builder
+                .index("hotels")
+                .size(10)
+                .sort(sortBuilder -> sortBuilder.field(field -> field
+                        .field("overall_rating")
+                        .order(SortOrder.Desc)
+                ))
+                .sort(sortBuilder -> sortBuilder.field(field -> field
+                        .field("reviews")
+                        .order(SortOrder.Desc)
+                ))
+        );
+
+        SearchResponse<Object> response = client.search(request, Object.class);
+
+        // Log the response for debugging
+        System.out.println("Total hits: " + response.hits().total().value());
+        response.hits().hits().forEach(hit -> {
+            System.out.println("Hit: " + hit.source());
+        });
+
+        return response.hits().hits().stream()
+                .map(Hit::id)
+                .collect(Collectors.toList());
+    }
+
     public void closeClient() {
         ElasticsearchConnection.closeClient();
         System.out.println("Elasticsearch client closed.");
