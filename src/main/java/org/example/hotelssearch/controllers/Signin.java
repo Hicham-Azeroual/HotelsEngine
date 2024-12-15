@@ -10,12 +10,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.example.hotelssearch.services.HotelService;
 import org.example.hotelssearch.services.UserService;
 
 import java.io.IOException;
 
 public class Signin {
 
+    Dashborad dashboard=new Dashborad();
+    HotelService hotelService = new HotelService();
     public Button exitButton;
     public Button registerButton;
     @FXML
@@ -61,6 +64,7 @@ public class Signin {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/HomeView.fxml"));
         Parent root = loader.load();
         Scene scene = new Scene(root, 700, 500);
+
         primaryStage.setScene(scene);
         primaryStage.setTitle("Home Page");
     }

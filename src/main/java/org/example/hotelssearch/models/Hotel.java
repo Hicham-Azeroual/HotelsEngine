@@ -5,39 +5,52 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Hotel {
-
+    private String id;
     private String name;
     private String link;
     private GpsCoordinates gps_coordinates;
     private String check_in_time;
     private String check_out_time;
-    private float lowest_rate;
+    private double lowest_rate;
     private String[] images;
-    private float overall_rating;
+    private double overall_rating;
     private int reviews;
     private String[] amenities;
+//
+//    public Hotel(String name, String link, GpsCoordinates gpsCoordinates, String checkInTime, String checkOutTime, double lowestRate, double overallRating, int reviews, String[] amenities) {
+//        this.name = name;
+//        this.link = link;
+//        this.gps_coordinates = gpsCoordinates;
+//        this.check_in_time = checkInTime;
+//        this.check_out_time = checkOutTime;
+//        this.amenities = amenities;
+//        this.lowest_rate=lowestRate;
+//        this.overall_rating=overallRating;
+//        this.reviews=reviews;
+//    }
 
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
     // Getters and Setters
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
-
     public String getLink() {
         return link;
     }
-
     public void setLink(String link) {
         this.link = link;
     }
-
     public GpsCoordinates getGps_coordinates() {
         return gps_coordinates;
     }
-
     public void setGps_coordinates(GpsCoordinates gps_coordinates) {
         this.gps_coordinates = gps_coordinates;
     }
@@ -58,7 +71,7 @@ public class Hotel {
         this.check_out_time = check_out_time;
     }
 
-    public float getLowest_rate() {
+    public double getLowest_rate() {
         return lowest_rate;
     }
 
@@ -74,7 +87,7 @@ public class Hotel {
         this.images = images;
     }
 
-    public float getOverall_rating() {
+    public double getOverall_rating() {
         return overall_rating;
     }
 
@@ -117,26 +130,30 @@ public class Hotel {
     // Inner class for GPS coordinates
     public static class GpsCoordinates {
         @JsonProperty("lat")
-        private float latitude;
+        private double latitude;
 
         @JsonProperty("lon")
-        private float longitude;
+        private double longitude;
 
-        // Getters and Setters
-        public float getLatitude() {
+        public GpsCoordinates(double latitude, double longitude) {
+            this.latitude=latitude;
+            this.longitude=longitude;
+        }
+
+        public double getLatitude() {
             return latitude;
         }
 
-        public void setLatitude(float latitude) {
-            this.latitude = latitude;
+        public void setLatitude(double latitude) {
+            this.latitude = (float) latitude;
         }
 
-        public float getLongitude() {
+        public double getLongitude() {
             return longitude;
         }
 
-        public void setLongitude(float longitude) {
-            this.longitude = longitude;
+        public void setLongitude(double longitude) {
+            this.longitude = (float) longitude;
         }
 
         @Override

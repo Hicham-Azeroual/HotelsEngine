@@ -1,127 +1,276 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="724.0" prefWidth="1099.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1">
-    <top>
-        <HBox spacing="10.0" style="-fx-padding: 10;" BorderPane.alignment="CENTER">
-            <children>
-                <!-- Left: Logo -->
-                <VBox alignment="CENTER" prefHeight="86.0" prefWidth="318.0">
-                    <children>
-                        <ImageView fitHeight="66.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                                <Image url="https://img.lovepik.com/element/45012/5571.png_860.png" />
-                            </image>
-                        </ImageView>
-                    </children>
-                </VBox>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="645.0" prefWidth="1263.0" stylesheets="@../styles/dashboard.css" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.hotelssearch.controllers.Dashborad">
+   <left>
+      <AnchorPane prefHeight="590.0" prefWidth="278.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+         <children>
+            <VBox layoutY="87.0" prefHeight="371.0" prefWidth="278.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+               <children>
+                  <Button fx:id="dashboardButton" mnemonicParsing="false" onAction="#showDashboard" prefHeight="63.0" prefWidth="278.0" styleClass="cardActif" text="Dashboard" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="WHITE" glyphName="HOME" size="25" />
+                     </graphic>
+                  </Button>
+                  <Button fx:id="manageButton" mnemonicParsing="false" onAction="#showManage" prefHeight="63.0" prefWidth="278.0" styleClass="card" text="Manage" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="WHITE" glyphName="TASKS" size="25" />
+                     </graphic>
+                  </Button>
+                  <Separator prefWidth="200.0">
+                     <VBox.margin>
+                        <Insets left="40.0" right="40.0" />
+                     </VBox.margin>
+                  </Separator>
+                  <Button fx:id="signOutButton" layoutX="10.0" layoutY="137.0" mnemonicParsing="false" onAction="#signOut" prefHeight="63.0" prefWidth="278.0" styleClass="card" text="Sign Out" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="WHITE" glyphName="SIGN_OUT" size="25" />
+                     </graphic>
+                  </Button>
+               </children>
+            </VBox>
+         </children>
+      </AnchorPane>
+   </left>
+   <top>
+      <AnchorPane prefHeight="71.0" prefWidth="1263.0" style="-fx-background-color: #10506a;" styleClass="top-bar" BorderPane.alignment="CENTER">
+         <children>
+            <Circle fill="DODGERBLUE" layoutX="1214.0" layoutY="35.0" radius="19.0" stroke="BLACK" strokeType="INSIDE" />
+            <FontAwesomeIconView glyphName="BELL" layoutX="1154.0" layoutY="44.0" size="26" wrappingWidth="34.0" />
+            <FontAwesomeIconView glyphName="BED" layoutX="64.0" layoutY="49.0" size="40" />
+            <Label layoutX="118.0" layoutY="13.0" text="LuxeStay" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="30.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
+   </top>
+   <center>
+      <!-- StackPane pour superposer les différentes pages -->
+      <StackPane fx:id="contentStack" BorderPane.alignment="CENTER">
+         <ScrollPane fx:id="scrollpane1" visible="false">
+            <content>
+               <!-- Contenu du Manage -->
+               <AnchorPane fx:id="managePane" prefHeight="579.0" prefWidth="985.0">
+                  <children>
+                     <Label layoutX="47.0" layoutY="30.0" text="Manage hotels">
+                        <font>
+                           <Font size="30.0" />
+                        </font>
+                     </Label>
+                     <Button fx:id="createHotel" alignment="CENTER" layoutX="835.0" layoutY="63.0" mnemonicParsing="false" onAction="#showCreateHotel" prefHeight="48.0" prefWidth="129.0" styleClass="buttonAdd" text="Create" textFill="WHITE">
+                        <font>
+                           <Font name="System Bold" size="20.0" />
+                        </font>
+                        <graphic>
+                           <FontAwesomeIconView fill="WHITE" glyphName="PLUS" />
+                        </graphic>
+                     </Button>
+                     <VBox fx:id="container" layoutX="-11.0" layoutY="149.0" prefHeight="413.0" prefWidth="925.0" spacing="15.0" styleClass="container" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0">
+                     </VBox>
+                     <TextField layoutX="323.0" layoutY="67.0" prefHeight="39.0" prefWidth="387.0" promptText="Search" styleClass="search-bar" />
+                     <!-- Ajoute ton contenu spécifique à Manage ici -->
+                  </children>
+               </AnchorPane>
+            </content>
+         </ScrollPane>
+         <ScrollPane fx:id="scrollpane2" visible="false">
+            <content>
+               <!-- Contenu du Dashboard -->
+               <AnchorPane fx:id="dashboardPane">
+                  <children>
+                     <HBox layoutX="40.0" layoutY="107.0" prefHeight="109.0" prefWidth="905.0" spacing="31.0">
+                        <children>
+                           <AnchorPane prefHeight="101.0" prefWidth="214.0" styleClass="statique">
+                              <children>
+                                 <Label layoutX="15.0" layoutY="14.0" prefHeight="39.0" prefWidth="183.0" text="Number of hotels" textFill="WHITE">
+                                    <font>
+                                       <Font name="System Bold" size="20.0" />
+                                    </font>
+                                 </Label>
+                                 <Label layoutX="89.0" layoutY="65.0" text="338" textFill="WHITE">
+                                    <font>
+                                       <Font name="System Bold" size="20.0" />
+                                    </font>
+                                 </Label>
+                              </children>
+                           </AnchorPane>
+                           <AnchorPane layoutX="10.0" layoutY="10.0" prefHeight="101.0" prefWidth="214.0" styleClass="statique">
+                              <children>
+                                 <Label layoutX="9.0" prefHeight="83.0" prefWidth="181.0" text="number of reviews/last week" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+                                    <font>
+                                       <Font name="System Bold" size="20.0" />
+                                    </font>
+                                 </Label>
+                                 <Label fx:id="numOfReviws" layoutX="84.0" layoutY="68.0" text="399" textFill="WHITE">
+                                    <font>
+                                       <Font name="System Bold" size="20.0" />
+                                    </font>
+                                 </Label>
+                              </children>
+                           </AnchorPane>
+                           <AnchorPane layoutX="255.0" layoutY="10.0" prefHeight="101.0" prefWidth="214.0" styleClass="statique">
+                              <children>
+                                 <Label layoutX="15.0" layoutY="14.0" prefHeight="39.0" prefWidth="183.0" text="Number of users" textFill="WHITE">
+                                    <font>
+                                       <Font name="System Bold" size="20.0" />
+                                    </font>
+                                 </Label>
+                                 <Label layoutX="89.0" layoutY="65.0" text="298" textFill="WHITE">
+                                    <font>
+                                       <Font name="System Bold" size="20.0" />
+                                    </font>
+                                 </Label>
+                              </children>
+                           </AnchorPane>
+                           <AnchorPane layoutX="501.0" layoutY="10.0" prefHeight="101.0" prefWidth="214.0" styleClass="statique">
+                              <children>
+                                 <Label layoutX="14.0" layoutY="14.0" prefHeight="65.0" prefWidth="183.0" text="Number of searchs /last day" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+                                    <font>
+                                       <Font name="System Bold" size="20.0" />
+                                    </font>
+                                 </Label>
+                                 <Label fx:id="numOfHotel" layoutX="89.0" layoutY="70.0" text="338" textFill="WHITE">
+                                    <font>
+                                       <Font name="System Bold" size="20.0" />
+                                    </font>
+                                 </Label>
+                              </children>
+                           </AnchorPane>
+                        </children>
+                     </HBox>
+                     <Label layoutX="47.0" layoutY="30.0" text="Numbers:">
+                        <font>
+                           <Font size="30.0" />
+                        </font>
+                     </Label>
+                     <Label layoutX="47.0" layoutY="239.0" text="Statistics:">
+                        <font>
+                           <Font size="30.0" />
+                        </font>
+                     </Label>
+                     <AnchorPane layoutX="243.0" layoutY="302.0" prefHeight="294.0" prefWidth="392.0">
+                        <!--                  <fx:include source="pieChart.fxml" />-->
+                     </AnchorPane>
+                     <GridPane layoutX="95.0" layoutY="287.0" prefHeight="298.0" prefWidth="965.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
+                        <columnConstraints>
+                           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        </columnConstraints>
+                        <rowConstraints>
+                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        </rowConstraints>
+                        <children>
+                           <!-- Ajout du contenu dans les cellules -->
+                           <fx:include source="pieChart.fxml" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                           <!-- Autres éléments pour d'autres colonnes ou lignes si nécessaire -->
+                        </children>
+                     </GridPane>
+                  </children>
+               </AnchorPane>
+            </content>
+         </ScrollPane>
+         <AnchorPane fx:id="AddHotel">
+            <VBox alignment="CENTER" spacing="20" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0">
+               <padding>
+                  <Insets bottom="20" left="20" right="20" top="20" />
+               </padding>
 
-                <!-- Center: Search Bar -->
-                <HBox alignment="CENTER" prefHeight="86.0" prefWidth="774.0" spacing="5.0" style="-fx-padding: 10;">
-                    <children>
-                        <TextField promptText="Search..." style="-fx-pref-height: 35; -fx-pref-width: 400; -fx-border-radius: 5px;" />
-                        <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                                <Image url="https://cdn-icons-png.flaticon.com/512/751/751463.png" />
-                            </image>
-                        </ImageView>
-                    </children>
-                </HBox>
+               <Label style="-fx-font-size: 25; -fx-font-weight: bold;" styleClass="title" text="Add a Hotel">
+                  <font>
+                     <Font size="96.0" />
+                  </font></Label>
 
-                <!-- Right: Notification and Profile -->
-                <HBox alignment="CENTER" prefHeight="86.0" prefWidth="266.0" spacing="15.0">
-                    <children>
-                        <ImageView fitHeight="45.0" fitWidth="51.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                                <Image url="https://cdn-icons-png.flaticon.com/512/1946/1946404.png" />
-                            </image>
-                     <HBox.margin>
-                        <Insets right="10.0" />
-                     </HBox.margin>
-                        </ImageView>
-                        <ImageView fitHeight="35.0" fitWidth="52.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                                <Image url="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" />
-                            </image>
-                        </ImageView>
-                    </children>
-                </HBox>
-            </children>
-        </HBox>
-    </top>
+               <GridPane alignment="CENTER" hgap="10" prefHeight="405.0" prefWidth="595.0" vgap="10">
+                  <!-- Hotel Name -->
+                  <Label styleClass="lable" text="Name:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                  <TextField fx:id="nameField" promptText="Hotel Name" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-    <left>
-        <VBox prefHeight="634.0" prefWidth="232.0" style="-fx-background-color: #f4f4f4;" BorderPane.alignment="CENTER">
-            <children>
-                <ScrollPane fitToWidth="true" prefHeight="631.0" prefWidth="261.0" style="-fx-padding: 10;">
-                    <content>
-                        <VBox minHeight="200.0" prefHeight="606.0" prefWidth="201.0" spacing="10.0" style="-fx-padding: 10;">
-                            <children>
-                                <Button prefHeight="34.0" prefWidth="182.0" styleClass="sidebar-button" text="Dashboard">
-                                    <graphic>
-                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                                            <image>
-                                                <Image url="https://cdn-icons-png.flaticon.com/512/8899/8899687.png" />
-                                            </image>
-                                        </ImageView>
-                                    </graphic>
-                           <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="20.0" />
-                           </VBox.margin>
-                                </Button>
+                  <!-- Website URL -->
+                  <Label text="Website:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                  <TextField fx:id="linkField" promptText="Website URL" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                                <Button prefHeight="34.0" prefWidth="184.0" styleClass="sidebar-button" text="Hotels">
-                                    <graphic>
-                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                                            <image>
-                                                <Image url="https://cdn-icons-png.freepik.com/256/1668/1668966.png?semt=ais_hybrid" />
-                                            </image>
-                                        </ImageView>
-                                    </graphic>
-                           <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="20.0" />
-                           </VBox.margin>
-                                </Button>
+                  <!-- GPS Coordinates -->
+                  <Label text="Latitude:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                  <TextField fx:id="latitudeField" promptText="Latitude" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                                <Button prefHeight="34.0" prefWidth="184.0" styleClass="sidebar-button" text="Configuration">
-                                    <graphic>
-                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                                            <image>
-                                                <Image url="https://cdn-icons-png.flaticon.com/512/12287/12287313.png" />
-                                            </image>
-                                        </ImageView>
-                                    </graphic>
-                           <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="20.0" />
-                           </VBox.margin>
-                                </Button>
+                  <Label text="Longitude:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                  <TextField fx:id="longitudeField" promptText="Longitude" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-                                <Button prefHeight="34.0" prefWidth="185.0" styleClass="sidebar-button" text="Log out">
-                                    <graphic>
-                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                                            <image>
-                                                <Image url="https://cdn-icons-png.flaticon.com/512/9653/9653907.png" />
-                                            </image>
-                                        </ImageView>
-                                    </graphic>
-                           <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="20.0" />
-                           </VBox.margin>
-                                </Button>
-                            </children>
-                        </VBox>
-                    </content>
-                </ScrollPane>
-            </children>
-        </VBox>
-    </left>
+                  <!-- Check-in and Check-out Times -->
+                  <Label text="Check-in Time:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                  <TextField fx:id="checkInTimeField" promptText="Check-in Time" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                  <Label text="Check-out Time:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                  <TextField fx:id="checkOutTimeField" promptText="Check-out Time" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                  <!-- Lowest Price -->
+                  <Label text="Price:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                  <TextField fx:id="lowestRateField" promptText="Lowest Price" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+
+                  <!-- Overall Rating -->
+                  <Label text="Rating:" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                  <TextField fx:id="overallRatingField" promptText="Overall Rating" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+
+                  <!-- Number of Reviews -->
+                  <Label text="Number of Reviews:" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                  <TextField fx:id="reviewsField" promptText="Number of Reviews" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+
+                  <!-- Amenities -->
+                  <Label text="Amenities:" GridPane.columnIndex="0" GridPane.rowIndex="9" />
+                  <TextArea fx:id="amenitiesField" promptText="Amenities (separated by commas)" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                  <columnConstraints>
+                     <ColumnConstraints />
+                     <ColumnConstraints />
+                  </columnConstraints>
+                  <rowConstraints>
+                     <RowConstraints />
+                     <RowConstraints />
+                     <RowConstraints />
+                     <RowConstraints />
+                     <RowConstraints />
+                     <RowConstraints />
+                     <RowConstraints />
+                     <RowConstraints />
+                     <RowConstraints />
+                     <RowConstraints />
+                  </rowConstraints>
+               </GridPane>
+
+               <Button fx:id="addHotelButton" onAction="#addHotel" styleClass="addButton" text="Add" textFill="WHITE">
+                  <font>
+                     <Font name="System Bold" size="85.0" />
+                  </font></Button>
+            </VBox>
+         </AnchorPane>
+      </StackPane>
+   </center>
 </BorderPane>

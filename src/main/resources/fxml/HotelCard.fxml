@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane layoutX="10.0" layoutY="10.0" prefHeight="185.0" prefWidth="925.0" styleClass="CardHotel" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.hotelssearch.controllers.cardHotelController">
+    <children>
+        <ImageView fx:id="imageView" fitHeight="147.0" fitWidth="191.0" layoutX="14.0" layoutY="19.0" pickOnBounds="true" preserveRatio="true" />
+
+        <!-- Label for the name -->
+        <Label fx:id="nameLabel" layoutX="223.0" layoutY="19.0" prefHeight="27.0" prefWidth="593.0" styleClass="label-name" text="name">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font>
+        </Label>
+
+        <!-- Label for the location -->
+        <Label fx:id="locationLabel" layoutX="239.0" layoutY="52.0" styleClass="label-location" text="Hotel Retlaw, Trademark Collection by Wyndham">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Label>
+
+        <!-- FontAwesomeIconView for the map marker -->
+        <FontAwesomeIconView glyphName="MAP_MARKER" layoutX="223.0" layoutY="67.0" size="16" />
+
+        <!-- Rectangle for the rating background -->
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="58.0" layoutX="840.0" layoutY="14.0" stroke="BLACK" strokeType="INSIDE" width="62.0" />
+
+        <!-- Label for the rating -->
+        <Label fx:id="ratingLabel" layoutX="855.0" layoutY="24.0" styleClass="label-rating" text="4.6" textFill="WHITE">
+            <font>
+                <Font name="System Bold" size="26.0" />
+            </font>
+        </Label>
+
+        <!-- Label for the price -->
+        <Label fx:id="priceLabel" layoutX="797.0" layoutY="79.0" styleClass="label-price" text="189.99 MAD">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font>
+        </Label>
+
+        <!-- Button with FontAwesomeIconView -->
+        <Button fx:id="deleteButton" layoutX="874.0" layoutY="127.0" mnemonicParsing="false" onAction="#DeleteHotel" prefWidth="37.0" style="-fx-background-color: red;">
+            <graphic>
+                <FontAwesomeIconView size="18" text="" />
+            </graphic>
+        </Button>
+
+        <!-- Button with FontAwesomeIconView -->
+        <Button layoutX="826.0" layoutY="127.0" mnemonicParsing="false" style="-fx-background-color: green;">
+            <graphic>
+                <FontAwesomeIconView glyphName="EDIT" size="18" text="" />
+            </graphic>
+        </Button>
+        <FlowPane fx:id="amenitiesFlowPane" hgap="10.0" layoutX="223.0" layoutY="87.0" prefHeight="38.0" prefWidth="561.0" vgap="10.0" />
+    </children>
+</AnchorPane>

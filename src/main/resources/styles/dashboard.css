@@ -1,109 +1,98 @@
-/* styles.css */
-
-/* General Styles */
-.root {
-    -fx-background-color: #f4f4f4;
+.top-bar {
+    -fx-background-color: #00b4ff;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0.5, 0, 2);
+}
+.search-bar {
+    -fx-background-color: #ffffff; /* Couleur de fond blanche */
+    -fx-background-radius: 15px; /* Coins arrondis */
+    -fx-padding: 5px; /* Espacement interne */
+    -fx-font-size: 14px; /* Taille de la police */
+    -fx-text-fill: #333333; /* Couleur du texte */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0.3, 0, 2); /* Ombre douce */
+}
+.cardActif {
+    -fx-background-color: rgba(255, 255, 255, 0.2); /* Transparence */
+    -fx-background-radius: 10px;
+    -fx-border-color: rgba(255, 255, 255, 0.4); /* Bordure semi-transparente */
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0.4, 0, 3);
 }
 
-/* Header Styles */
-.header {
-    -fx-background-color: #3498db;
-    -fx-padding: 10;
-    -fx-alignment: center-left;
-}
-
-.header-title {
-    -fx-font-size: 24px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #ffffff;
-    -fx-padding: 0 20 0 0;
-}
-
-.search-field {
-    -fx-background-color: #ffffff;
-    -fx-text-fill: #333333;
-    -fx-font-size: 14px;
-    -fx-padding: 5 10;
-    -fx-border-color: transparent;
-    -fx-border-width: 0;
-    -fx-cursor: text;
-    -fx-pref-width: 400px;
-    -fx-border-radius: 5px;
-}
-
-.search-icon {
-    -fx-background-color: transparent;
+.card:hover {
+    -fx-background-color: #545151;
     -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 10, 0.5, 0, 5);
 }
-
-.notification-icon, .profile-icon {
-    -fx-background-color: transparent;
-    -fx-cursor: hand;
-}
-
-/* Sidebar Styles */
 .sidebar {
-    -fx-background-color: #2c3e50;
-    -fx-padding: 20;
+    -fx-background-color: #10506a;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0.3, 0, 2);
 }
 
-.sidebar-button {
+.statique {
+    -fx-background-color: linear-gradient(to right, #1A3384, #2B49B3);
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 6, 0.4, 0, 3);
+}
+
+.card{
     -fx-background-color: transparent;
-    -fx-text-fill: #bdc3c7;
-    -fx-font-size: 14px;
-    -fx-padding: 8 0;
-    -fx-border-color: transparent;
-    -fx-border-width: 0;
-    -fx-cursor: hand;
-    -fx-transition: all 0.3s ease;
+}
+.card:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.13);
 }
 
-.sidebar-button:hover {
-    -fx-background-color: #34495e;
-    -fx-text-fill: #ffffff;
+.buttonAdd{
+    -fx-background-color: #10506a;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0.5, 0, 2);
 }
 
-.sidebar-button .graphic {
-    -fx-padding: 0 10 0 0;
+.CardHotel {
+    -fx-background-color: white; /* Couleur de fond de la carte */
+    -fx-background-radius: 10;  /* Arrondi des bords */
+    -fx-padding: 10;            /* Espacement interne */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0.5, 5, 5);
+    -fx-border-radius: 10;      /* Coin arrondi pour la bordure */
 }
-
-/* Main Content Styles */
-.main-content {
+/* Style pour le conteneur principal */
+.vbox {
+    -fx-background-color: #f0f0f0; /* Fond gris clair */
     -fx-padding: 20;
-}
-
-.stats-box {
     -fx-spacing: 20;
-    -fx-alignment: center;
 }
 
-.stat-item {
-    -fx-alignment: center;
-    -fx-spacing: 10;
-}
-
-.stat-value {
-    -fx-font-size: 24px;
+/* Style pour le titre "Add a Hotel" */
+.title {
+    -fx-font-size: 90px;
     -fx-font-weight: bold;
-    -fx-text-fill: #333333;
+    -fx-padding: 10 20;
+    -fx-alignment: CENTER;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0.5, 0, 1); /* Ombre légère */
 }
 
-.stat-label {
-    -fx-font-size: 14px;
-    -fx-text-fill: #7f8c8d;
+/* Style pour les libellés */
+
+
+
+
+/* Style pour le bouton "Ajouter" */
+.addButton {
+    -fx-pref-width: 150px;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff; /* Texte blanc */
+    -fx-background-color: #10506a; /* Fond bleu foncé */
+    -fx-border-radius: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0.5, 0, 1); /* Ombre légère */
 }
 
-.chart-box {
-    -fx-spacing: 5;
-    -fx-alignment: bottom-center;
+/* Style au survol du bouton */
+.addButton:hover {
+    -fx-background-color: #0d4055; /* Fond bleu foncé plus sombre */
+    -fx-cursor: hand; /* Curseur main */
 }
 
-.chart-item {
-    -fx-alignment: bottom-center;
-    -fx-spacing: 5;
-}
-
-.chart-value {
-    -fx-font-size: 14px;
-    -fx-text-fill: #333333;
+/* Style au clic du bouton */
+.addButton:pressed {
+    -fx-background-color: #0a3040; /* Fond bleu foncé encore plus sombre */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 5, 0.5, 0, 1); /* Ombre plus prononcée */
 }

@@ -2,14 +2,23 @@ package org.example.hotelssearch.controllers;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 import org.example.hotelssearch.models.User;
+import org.example.hotelssearch.services.HotelService;
 import org.example.hotelssearch.services.UserService;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.io.IOException;
+
 public class AuthController {
 
+    Dashborad dashboard=new Dashborad();
+    HotelService hotelService = new HotelService();
     @FXML
     private TextField username;
 
@@ -101,39 +110,14 @@ public class AuthController {
             register_form.setVisible(true);
         }
     }
-
-    @FXML
-    public void handleSignIn() {
-        String username = this.username.getText();
-        String password = this.password.getText();
-
-        if (username.isEmpty() || password.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Error", "All fields are required.");
-        } else {
-            try {
-                if (userService.signIn(username, password)) {
-                    showAlert(Alert.AlertType.INFORMATION, "Success", "Login successful.");
-                    // Navigate to the home page or perform other actions
-                } else {
-                    showAlert(Alert.AlertType.ERROR, "Failed", "Username or password incorrect.");
-                }
-            } catch (Exception e) {
-                showAlert(Alert.AlertType.ERROR, "Error", "An error occurred during sign-in.");
-                e.printStackTrace();
-            }
-        }
-    }
-
     @FXML
     public void handleSignUp() {
         String username1 = this.username1.getText();
         String password1 = show1.isSelected() ? this.passwordshow1.getText() : this.password1.getText();
         String email1 = this.email.getText();
 
-        // Hash the password before storing it
-        String hashedPassword = BCrypt.hashpw(password1, BCrypt.gensalt());
 
-        User user = new User(username1, email1, hashedPassword);
+        User user = new User(username1, email1, password1,"user" );
         System.out.println("Password during sign-up: " + password1); // Debugging line
 
         if (username1.isEmpty() || password1.isEmpty() || email1.isEmpty()) {
@@ -143,6 +127,8 @@ public class AuthController {
                 if (userService.signUp(user)) {
                     showAlert(Alert.AlertType.INFORMATION, "Success", "Registration successful.");
                     // Navigate to the login page or perform other actions
+                    register_form.setVisible(false);
+                    login_form.setVisible(true);
                 } else {
                     showAlert(Alert.AlertType.ERROR, "Failed", "Registration failed. User already exists");
                 }
@@ -153,11 +139,57 @@ public class AuthController {
         }
     }
 
+
+
     private void showAlert(Alert.AlertType alertType, String title, String message) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+
+
+
+
+//    private void switchToDashboard() {
+//        try {
+//            // Charger le fichier FXML
+//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard.fxml"));
+//            Parent dashboardRoot = loader.load();
+//
+//            // Récupérer le contrôleur associé
+//            Dashborad dashboardController = loader.getController();
+//
+//            // Charger les hôtels et les afficher
+//            dashboardController.displayHotels(HotelService.retrieveAllHotels());
+//
+//            // Configurer la nouvelle scène
+//            Scene dashboardScene = new Scene(dashboardRoot);
+//
+//            // Obtenir la scène actuelle et la remplacer
+//            Stage stage = (Stage) login.getScene().getWindow();
+//            stage.setScene(dashboardScene);
+//            stage.show();
+//        } catch (IOException e) {
+//            showAlert(Alert.AlertType.ERROR, "Failed to load the dashboard:", e.getMessage());
+//        }
+//    }
+
+
+    public void handleSignIn(ActionEvent event) {
+        String username = this.username.getText();
+        String password = this.password.getText();
+        try {
+            boolean isAuthenticated = userService.signIn(username, password);
+//            if (isAuthenticated) {
+//                switchToDashboard();
+//            } else {
+//                showAlert(Alert.AlertType.valueOf("Authentication Failed"), "Invalid username or password.","username or password incorrect");
+//            }
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "An error occurred during sign-in:", e.getMessage());
+        }
     }
 }

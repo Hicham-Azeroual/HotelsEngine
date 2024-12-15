@@ -1,5 +1,7 @@
 package org.example.hotelssearch.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 
@@ -7,16 +9,19 @@ public class User {
     private String username;  // Unique identifier
     private String email;     // User's email
     private String password;  // Hashed password
+
+    @JsonProperty("created_at")
     private String createdAt; // Timestamp of account creation as a string
+
     private String role;      // User role, default is "user"
 
     // Constructor
-    public User(String username, String email, String password) {
+    public User(String username, String email, String password,String role) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.createdAt = DateTimeFormatter.ISO_INSTANT.format(Instant.now()); // Set the creation time to the current time as a string
-        this.role = "user"; // Default role is "user"
+        this.role = "role"; // Default role is "user"
     }
 
     public User() {

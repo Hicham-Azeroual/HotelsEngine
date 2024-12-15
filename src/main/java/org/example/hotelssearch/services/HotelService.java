@@ -1,13 +1,11 @@
 package org.example.hotelssearch.services;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.Result;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.ExistsQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
-import co.elastic.clients.elasticsearch.core.CountRequest;
-import co.elastic.clients.elasticsearch.core.CountResponse;
-import co.elastic.clients.elasticsearch.core.SearchRequest;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.json.JsonpMapper;
@@ -16,6 +14,7 @@ import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
 import jakarta.json.stream.JsonParser;
+import javafx.concurrent.Task;
 import org.example.hotelssearch.models.Hotel;
 import org.example.hotelssearch.utils.ElasticsearchConnection;
 import org.example.hotelssearch.utils.GPSCoordinates;
@@ -29,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 public class HotelService {
-    private final ElasticsearchClient client;
+    private static ElasticsearchClient client;
     // Constructor to initialize the Elasticsearch client
     public HotelService() {
         // Ensure the Elasticsearch client is initialized before using it
@@ -78,35 +77,95 @@ public class HotelService {
         }
 
         return matchingHotels;
-    }    // Function to retrieve all hotels from Elasticsearch and display them in the console
-    public void retrieveAllHotels() {
+    }
+
+    public boolean createHotel(Hotel hotel) {
         try {
-            // Search query to retrieve all hotels from the 'hotels' index
-            SearchRequest searchRequest = SearchRequest.of(s -> s
-                    .index("hotels")
-                    .size(300)  // Retrieve a maximum of 300 documents (adjust as needed)
+            // Créer une requête d'indexation
+            IndexRequest<Hotel> request = IndexRequest.of(i -> i
+                    .index("hotels") // Nom de l'index Elasticsearch
+                    .document(hotel)  // Document à indexer
+            );
+            IndexResponse response = client.index(request);
+            if (response.result() == Result.Created) {
+                System.out.println("Hotel added successfully with ID: " + response.id());
+                return true;
+            } else {
+                System.err.println("Failed to add hotel: " + response.result());
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    // Function to retrieve all hotels from Elasticsearch and display them in the console
+    public static Task<List<Hotel>> retrieveAllHotels() {
+        return new Task<>() {
+            @Override
+            protected List<Hotel> call() {
+                try {
+                    System.out.println(1);
+                    List<Hotel> hotels = new ArrayList<>();
+                    SearchRequest searchRequest = SearchRequest.of(s -> s
+                            .index("hotels")
+                            .size(3) // Limiter le nombre de résultats pour les tests
+                    );
+
+                    SearchResponse<Hotel> response = client.search(searchRequest, Hotel.class);
+
+                    // Parcourir les résultats et mapper l'ID du document
+                    for (Hit<Hotel> hit : response.hits().hits()) {
+                        Hotel hotel = hit.source(); // Récupérer les données du document
+                        hotel.setId(hit.id()); // Ajouter l'ID du document à l'objet Hotel
+                        hotels.add(hotel);
+                        System.out.println(22);
+                    }
+
+                    System.out.println("Hotels retrieved successfully: " + hotels.size());
+                    return hotels;
+                } catch (Exception e) {
+                    System.err.println("Error during hotel retrieval: " + e.getMessage());
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+    }
+
+    public boolean deleteHotelById(String hotelId) {
+        try {
+            // Vérifier si l'ID de l'hôtel est valide
+            if (hotelId == null || hotelId.isEmpty()) {
+                System.err.println("Error: Hotel ID cannot be null or empty.");
+                return false;
+            }
+
+            // Créer la requête de suppression
+            DeleteRequest deleteRequest = DeleteRequest.of(d -> d
+                    .index("hotels") // Spécifier l'index
+                    .id(hotelId)      // ID de l'hôtel à supprimer
             );
 
-            SearchResponse<Hotel> response = client.search(searchRequest, Hotel.class);
+            // Exécuter la requête de suppression
+            DeleteResponse response = client.delete(deleteRequest);
 
-            // Check if we have hits and process the results
-            List<Hotel> hotels = response.hits().hits().stream()
-                    .map(Hit::source)  // Extract hotel objects from the hits
-                    .toList();
-
-            if (hotels.isEmpty()) {
-                System.out.println("No hotels found.");
+            // Vérifier le statut de la réponse
+            if (response.result() == Result.Deleted) {
+                System.out.println("Hotel with ID " + hotelId + " has been successfully deleted.");
+                return true;
             } else {
-                // Display each hotel in the console
-                for (Hotel hotel : hotels) {
-                    System.out.println(hotel);
-                }
+                System.err.println("Failed to delete hotel with ID " + hotelId + ". Result: " + response.result());
+                return false;
             }
 
         } catch (IOException e) {
-            System.err.println("Error retrieving hotels: " + e.getMessage());
+            System.err.println("Error deleting hotel with ID " + hotelId + ": " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
+
     public static String buildRangeQuery(float minRating) throws Exception {
         // Use Jackson to construct the JSON query
         ObjectMapper objectMapper = new ObjectMapper();

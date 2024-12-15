@@ -39,7 +39,10 @@ public class UserService {
 
     // Method to sign in a user
     public boolean signIn(String username, String password) throws Exception {
+        System.out.print(username);
+        System.out.print(password);
         User user = getUserByUsername(username);
+        System.out.println(user.getPassword());
         if (user != null && user.getPassword().equals(password)) {
             return true; // Authentication successful
         }
