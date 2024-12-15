@@ -14,21 +14,23 @@ import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
 import jakarta.json.stream.JsonParser;
-import javafx.concurrent.Task;
 import org.example.hotelssearch.models.Hotel;
 import org.example.hotelssearch.utils.ElasticsearchConnection;
 import org.example.hotelssearch.utils.GPSCoordinates;
 import org.example.hotelssearch.utils.GeocodingService;
+import org.example.hotelssearch.utils.RequestCounter;
+import co.elastic.clients.elasticsearch.core.search.Suggestion;
+
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.*;
 
 public class HotelService {
-    private static ElasticsearchClient client;
+    private final ElasticsearchClient client;
     // Constructor to initialize the Elasticsearch client
     public HotelService() {
         // Ensure the Elasticsearch client is initialized before using it
@@ -37,6 +39,26 @@ public class HotelService {
             this.client = ElasticsearchConnection.getClient();
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize Elasticsearch client", e);
+        }
+    }
+    public boolean createHotel(Hotel hotel) {
+        try {
+            // Créer une requête d'indexation
+            IndexRequest<Hotel> request = IndexRequest.of(i -> i
+                    .index("hotels") // Nom de l'index Elasticsearch
+                    .document(hotel)  // Document à indexer
+            );
+            IndexResponse response = client.index(request);
+            if (response.result() == Result.Created) {
+                System.out.println("Hotel added successfully with ID: " + response.id());
+                return true;
+            } else {
+                System.err.println("Failed to add hotel: " + response.result());
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
     // Function to search hotels by name
@@ -77,62 +99,38 @@ public class HotelService {
         }
 
         return matchingHotels;
-    }
-
-    public boolean createHotel(Hotel hotel) {
+    }    // Function to retrieve all hotels from Elasticsearch and display them in the console
+    public List<Hotel> retrieveAllHotels(int from, int size) {
         try {
-            // Créer une requête d'indexation
-            IndexRequest<Hotel> request = IndexRequest.of(i -> i
-                    .index("hotels") // Nom de l'index Elasticsearch
-                    .document(hotel)  // Document à indexer
+            RequestCounter.increment(); // Increment the request counter
+            // Search query to retrieve hotels from the 'hotels' index with pagination
+            SearchRequest searchRequest = SearchRequest.of(s -> s
+                    .index("hotels")
+                    .from(from)
+                    .size(size)
             );
-            IndexResponse response = client.index(request);
-            if (response.result() == Result.Created) {
-                System.out.println("Hotel added successfully with ID: " + response.id());
-                return true;
-            } else {
-                System.err.println("Failed to add hotel: " + response.result());
-                return false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+
+            SearchResponse<Hotel> response = client.search(searchRequest, Hotel.class);
+
+            // Check if we have hits and process the results
+            List<Hotel> hotels = response.hits().hits().stream()
+                    .map(Hit::source)  // Extract hotel objects from the hits
+                    .toList();
+
+            if (hotels.isEmpty()) {
+                System.out.println("No hotels found.");
+            } //else {
+                // Display each hotel in the console
+                //for (Hotel hotel : hotels) {
+                  //  System.out.println(hotel);
+                //}
+            //}
+            return hotels;
+        } catch (IOException e) {
+            System.err.println("Error retrieving hotels: " + e.getMessage());
         }
+        return new ArrayList<>();
     }
-    // Function to retrieve all hotels from Elasticsearch and display them in the console
-    public static Task<List<Hotel>> retrieveAllHotels() {
-        return new Task<>() {
-            @Override
-            protected List<Hotel> call() {
-                try {
-                    System.out.println(1);
-                    List<Hotel> hotels = new ArrayList<>();
-                    SearchRequest searchRequest = SearchRequest.of(s -> s
-                            .index("hotels")
-                            .size(3) // Limiter le nombre de résultats pour les tests
-                    );
-
-                    SearchResponse<Hotel> response = client.search(searchRequest, Hotel.class);
-
-                    // Parcourir les résultats et mapper l'ID du document
-                    for (Hit<Hotel> hit : response.hits().hits()) {
-                        Hotel hotel = hit.source(); // Récupérer les données du document
-                        hotel.setId(hit.id()); // Ajouter l'ID du document à l'objet Hotel
-                        hotels.add(hotel);
-                        System.out.println(22);
-                    }
-
-                    System.out.println("Hotels retrieved successfully: " + hotels.size());
-                    return hotels;
-                } catch (Exception e) {
-                    System.err.println("Error during hotel retrieval: " + e.getMessage());
-                    e.printStackTrace();
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-    }
-
     public boolean deleteHotelById(String hotelId) {
         try {
             // Vérifier si l'ID de l'hôtel est valide
@@ -165,7 +163,6 @@ public class HotelService {
             return false;
         }
     }
-
     public static String buildRangeQuery(float minRating) throws Exception {
         // Use Jackson to construct the JSON query
         ObjectMapper objectMapper = new ObjectMapper();
@@ -372,16 +369,22 @@ public class HotelService {
         return matchingHotels;
     }
 
-    public static String buildQuery(String searchTerm, Float minRating, Float maxPrice, Double latitude, Double longitude, Double radiusInKm, List<String> amenities) throws Exception {
+    public static String buildQuery(String searchTerm, Float minRating, Float maxPrice, Double latitude, Double longitude, Double radiusInKm, List<String> amenities, int from, int size) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
-
         // List to hold all the must queries
         List<Map<String, Object>> mustQueries = new ArrayList<>();
 
-        // Match query for hotel name
+        // Match query for hotel name with improved parameters
         if (searchTerm != null && !searchTerm.isEmpty()) {
             Map<String, Object> matchQuery = Map.of(
-                    "match", Map.of("name", searchTerm) // Replace "name" with your field name if different
+                    "match", Map.of(
+                            "name", Map.of(
+                                    "query", searchTerm,
+                                    "fuzziness", "AUTO",
+                                    "prefix_length", 2,
+                                    "operator", "and"
+                            )
+                    )
             );
             mustQueries.add(matchQuery);
         }
@@ -397,7 +400,7 @@ public class HotelService {
         }
 
         // Range query for price
-        if (maxPrice != null) {
+        if (maxPrice != null && maxPrice > 0) {
             Map<String, Object> priceRangeQuery = Map.of(
                     "range", Map.of(
                             "lowest_rate", Map.of("lte", maxPrice)
@@ -428,7 +431,7 @@ public class HotelService {
         List<Map<String, Object>> filterQueries = new ArrayList<>();
 
         // Geo distance query
-        if (latitude != null && longitude != null && radiusInKm != null) {
+        if (latitude != 0 && longitude != 0 && radiusInKm != null) {
             Map<String, Object> geoDistanceQuery = Map.of(
                     "geo_distance", Map.of(
                             "distance", radiusInKm + "km",
@@ -448,23 +451,39 @@ public class HotelService {
         }
 
         // Wrap the bool query in the "query" key
-        Map<String, Object> queryWrapper = Map.of("query", Map.of("bool", boolQuery),"size",100);
+        Map<String, Object> queryWrapper = Map.of(
+                "query", Map.of("bool", boolQuery),
+                "from", from,
+                "size", size
+        );
 
         // Serialize to JSON string
         return objectMapper.writeValueAsString(queryWrapper);
     }
-
-    public void executeQuery(String searchTerm, Float minRating, Float maxPrice, String cityName, Double radiusInKm, List<String> amenities) throws Exception {
+    public List<Hotel> executeQuery(String searchTerm, Float minRating, Float maxPrice, String cityName, Double radiusInKm, List<String> amenities, int from, int size, GPSCoordinates gpsCoordinates) throws Exception {
         // Get GPS coordinates for the city
-        GPSCoordinates coordinates = GeocodingService.getLocationCoordinates(cityName);
+        GPSCoordinates coordinates = null;
+        double latitude = 0;
+        double longitude = 0;
+        if (cityName != null && !cityName.isEmpty()) {
+            coordinates = GeocodingService.getLocationCoordinates(cityName);
+            latitude = coordinates.getLatitude();
+            longitude = coordinates.getLongitude();
+            radiusInKm = 70.0;
+        } else if (gpsCoordinates != null) {
+            latitude = gpsCoordinates.getLatitude();
+            longitude = gpsCoordinates.getLongitude();
+        } else {
+            System.out.println("City name is not provided or is empty.");
+        }
 
         // Check if coordinates were successfully retrieved
-        if (coordinates == null) {
-            throw new Exception("Could not retrieve coordinates for the city: " + cityName);
+        if (coordinates == null && gpsCoordinates == null) {
+            System.out.print("Could not retrieve coordinates for the city: " + cityName);
         }
 
         // Build the query
-        String queryJson = buildQuery(searchTerm, minRating, maxPrice, coordinates.getLatitude(), coordinates.getLongitude(), radiusInKm, amenities);
+        String queryJson = buildQuery(searchTerm, minRating, maxPrice, latitude, longitude, radiusInKm, amenities, from, size);
 
         // Create the search request
         SearchRequest searchRequest = SearchRequest.of(sr -> sr
@@ -482,15 +501,14 @@ public class HotelService {
         // Display the results directly
         if (hotels.isEmpty()) {
             System.out.println("No hotels found matching the criteria.");
-        } else {
-            System.out.println("Hotels found:");
-            for (Hotel hotel : hotels) {
-                System.out.println(hotel);
-            }
-        }
-    }    // Close the Elasticsearch client connection
-    // Method to perform aggregation query and return the results
-
+        } //else {
+        // System.out.println("Hotels found:");
+        //for (Hotel hotel : hotels) {
+        //  System.out.println(hotel);
+        //}
+        //}
+        return hotels;
+    }
     public static String buildRatingDistributionQuery() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -632,6 +650,94 @@ public class HotelService {
             return 0;
         }
     }
+    public int retrieveNumberOfRequests() {
+        return RequestCounter.getRequestCount();
+    }
+    public List<Hotel> sortHotels(List<Hotel> hotels, String sortOption) {
+        switch (sortOption) {
+            case "Price":
+                hotels.sort(Comparator.comparingDouble(Hotel::getLowest_rate));
+                break;
+            case "Name":
+                hotels.sort(Comparator.comparing(Hotel::getName));
+                break;
+            //case "Distance":
+                // Assuming you have a method to calculate distance
+              //  hotels.sort(Comparator.comparingDouble(Hotel::getDistance));
+              //  break;
+            case "Rating":
+                hotels.sort(Comparator.comparingDouble(Hotel::getOverall_rating).reversed());
+                break;
+            default:
+                // Default sorting by rating
+                hotels.sort(Comparator.comparingDouble(Hotel::getOverall_rating).reversed());
+                break;
+        }
+        return hotels;
+    }
+
+    public static String buildAutocompleteQuery(String searchTerm, int from, int size) throws Exception {
+        // Initialize the ObjectMapper for JSON serialization
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        // List to hold all the must queries
+        List<Map<String, Object>> mustQueries = new ArrayList<>();
+
+        // Autocomplete query for hotel name using prefix match
+        if (searchTerm != null && !searchTerm.isEmpty()) {
+            Map<String, Object> matchQuery = Map.of(
+                    "match", Map.of(
+                            "name", Map.of(
+                                    "query", searchTerm,
+                                    "operator", "and"
+                            )
+                    )
+            );
+            mustQueries.add(matchQuery);
+        }
+
+        // Wrap the query inside a "query" field
+        Map<String, Object> boolQuery = new HashMap<>();
+        if (!mustQueries.isEmpty()) {
+            boolQuery.put("must", mustQueries);
+        }
+
+        // Final query wrapper with pagination
+        Map<String, Object> queryWrapper = Map.of(
+                "query", Map.of("bool", boolQuery),
+                "from", from,
+                "size", size
+        );
+
+        // Convert to JSON string
+        return objectMapper.writeValueAsString(queryWrapper);
+    }
+
+    public List<String> executeAutocompleteQuery(String searchTerm, int from, int size) throws Exception {
+        // Build the autocomplete query
+        String queryJson = buildAutocompleteQuery(searchTerm, from, size);
+
+        // Create the search request
+        SearchRequest searchRequest = SearchRequest.of(sr -> sr
+                .index("hotels") // Replace with your actual index name
+                .withJson(new StringReader(queryJson))
+        );
+
+        // Execute the search query
+        SearchResponse<Map> response = client.search(searchRequest, Map.class);
+
+        // Extract the results from the response
+        List<String> hotelNames = new ArrayList<>();
+        response.hits().hits().forEach(hit -> {
+            // Extract the name of the hotel (or whatever field you're searching for)
+            hotelNames.add((String) hit.source().get("name"));
+        });
+
+        // Return the list of hotel names (or whatever field you want)
+        return hotelNames;
+    }
+
+
     public void closeClient() {
         ElasticsearchConnection.closeClient();
         System.out.println("Elasticsearch client closed.");

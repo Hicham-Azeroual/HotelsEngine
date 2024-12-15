@@ -2,55 +2,44 @@ package org.example.hotelssearch.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.example.hotelssearch.utils.GPSCoordinates;
+import org.example.hotelssearch.utils.GoogleMapsGeocoding;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Hotel {
-    private String id;
+
     private String name;
     private String link;
     private GpsCoordinates gps_coordinates;
     private String check_in_time;
     private String check_out_time;
-    private double lowest_rate;
+    private float lowest_rate;
     private String[] images;
-    private double overall_rating;
+    private float overall_rating;
     private int reviews;
     private String[] amenities;
-//
-//    public Hotel(String name, String link, GpsCoordinates gpsCoordinates, String checkInTime, String checkOutTime, double lowestRate, double overallRating, int reviews, String[] amenities) {
-//        this.name = name;
-//        this.link = link;
-//        this.gps_coordinates = gpsCoordinates;
-//        this.check_in_time = checkInTime;
-//        this.check_out_time = checkOutTime;
-//        this.amenities = amenities;
-//        this.lowest_rate=lowestRate;
-//        this.overall_rating=overallRating;
-//        this.reviews=reviews;
-//    }
 
-    public String getId() {
-        return id;
-    }
-    public void setId(String id) {
-        this.id = id;
-    }
     // Getters and Setters
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
+
     public String getLink() {
         return link;
     }
+
     public void setLink(String link) {
         this.link = link;
     }
-    public GpsCoordinates getGps_coordinates() {
-        return gps_coordinates;
+
+    public  GPSCoordinates getGps_coordinates() {
+        return new GPSCoordinates(gps_coordinates.latitude, gps_coordinates.longitude);
     }
+
     public void setGps_coordinates(GpsCoordinates gps_coordinates) {
         this.gps_coordinates = gps_coordinates;
     }
@@ -71,7 +60,7 @@ public class Hotel {
         this.check_out_time = check_out_time;
     }
 
-    public double getLowest_rate() {
+    public float getLowest_rate() {
         return lowest_rate;
     }
 
@@ -87,7 +76,7 @@ public class Hotel {
         this.images = images;
     }
 
-    public double getOverall_rating() {
+    public float getOverall_rating() {
         return overall_rating;
     }
 
@@ -127,6 +116,11 @@ public class Hotel {
                 '}';
     }
 
+    // Method to calculate distance between hotel and current location
+    public  double calculateDistanceTo(GPSCoordinates currentLocation) {
+        return GoogleMapsGeocoding.calculateDistance(currentLocation, getGps_coordinates());
+    }
+
     // Inner class for GPS coordinates
     public static class GpsCoordinates {
         @JsonProperty("lat")
@@ -135,17 +129,13 @@ public class Hotel {
         @JsonProperty("lon")
         private double longitude;
 
-        public GpsCoordinates(double latitude, double longitude) {
-            this.latitude=latitude;
-            this.longitude=longitude;
-        }
-
+        // Getters and Setters
         public double getLatitude() {
             return latitude;
         }
 
         public void setLatitude(double latitude) {
-            this.latitude = (float) latitude;
+            this.latitude = latitude;
         }
 
         public double getLongitude() {
@@ -153,7 +143,7 @@ public class Hotel {
         }
 
         public void setLongitude(double longitude) {
-            this.longitude = (float) longitude;
+            this.longitude = longitude;
         }
 
         @Override

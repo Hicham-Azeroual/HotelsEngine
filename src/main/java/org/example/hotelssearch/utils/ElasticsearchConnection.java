@@ -108,7 +108,7 @@ public class ElasticsearchConnection {
             // Close the client
             closeClient();
         } catch (Exception e) {
-            System.err.println("Error initializing or testing Elasticsearch connection: " + e.getMessage());
+            System.err.println("Error u initializing or testing Elasticsearch connection: " + e.getMessage());
             e.printStackTrace();
         }
     }
