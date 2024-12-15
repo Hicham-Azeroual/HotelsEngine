@@ -41,26 +41,6 @@ public class HotelService {
             throw new RuntimeException("Failed to initialize Elasticsearch client", e);
         }
     }
-    public boolean createHotel(Hotel hotel) {
-        try {
-            // Créer une requête d'indexation
-            IndexRequest<Hotel> request = IndexRequest.of(i -> i
-                    .index("hotels") // Nom de l'index Elasticsearch
-                    .document(hotel)  // Document à indexer
-            );
-            IndexResponse response = client.index(request);
-            if (response.result() == Result.Created) {
-                System.out.println("Hotel added successfully with ID: " + response.id());
-                return true;
-            } else {
-                System.err.println("Failed to add hotel: " + response.result());
-                return false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
     // Function to search hotels by name
     public List<Hotel> searchHotelsByName(String name) {
         List<Hotel> matchingHotels = new ArrayList<>();
@@ -100,36 +80,25 @@ public class HotelService {
 
         return matchingHotels;
     }    // Function to retrieve all hotels from Elasticsearch and display them in the console
-    public List<Hotel> retrieveAllHotels(int from, int size) {
+    public boolean createHotel(Hotel hotel) {
         try {
-            RequestCounter.increment(); // Increment the request counter
-            // Search query to retrieve hotels from the 'hotels' index with pagination
-            SearchRequest searchRequest = SearchRequest.of(s -> s
-                    .index("hotels")
-                    .from(from)
-                    .size(size)
+            // Créer une requête d'indexation
+            IndexRequest<Hotel> request = IndexRequest.of(i -> i
+                    .index("hotels") // Nom de l'index Elasticsearch
+                    .document(hotel)  // Document à indexer
             );
-
-            SearchResponse<Hotel> response = client.search(searchRequest, Hotel.class);
-
-            // Check if we have hits and process the results
-            List<Hotel> hotels = response.hits().hits().stream()
-                    .map(Hit::source)  // Extract hotel objects from the hits
-                    .toList();
-
-            if (hotels.isEmpty()) {
-                System.out.println("No hotels found.");
-            } //else {
-                // Display each hotel in the console
-                //for (Hotel hotel : hotels) {
-                  //  System.out.println(hotel);
-                //}
-            //}
-            return hotels;
-        } catch (IOException e) {
-            System.err.println("Error retrieving hotels: " + e.getMessage());
+            IndexResponse response = client.index(request);
+            if (response.result() == Result.Created) {
+                System.out.println("Hotel added successfully with ID: " + response.id());
+                return true;
+            } else {
+                System.err.println("Failed to add hotel: " + response.result());
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
-        return new ArrayList<>();
     }
     public boolean deleteHotelById(String hotelId) {
         try {
@@ -162,6 +131,37 @@ public class HotelService {
             e.printStackTrace();
             return false;
         }
+    }
+    public List<Hotel> retrieveAllHotels(int from, int size) {
+        try {
+            RequestCounter.increment(); // Increment the request counter
+            // Search query to retrieve hotels from the 'hotels' index with pagination
+            SearchRequest searchRequest = SearchRequest.of(s -> s
+                    .index("hotels")
+                    .from(from)
+                    .size(size)
+            );
+
+            SearchResponse<Hotel> response = client.search(searchRequest, Hotel.class);
+
+            // Check if we have hits and process the results
+            List<Hotel> hotels = response.hits().hits().stream()
+                    .map(Hit::source)  // Extract hotel objects from the hits
+                    .toList();
+
+            if (hotels.isEmpty()) {
+                System.out.println("No hotels found.");
+            } //else {
+                // Display each hotel in the console
+                //for (Hotel hotel : hotels) {
+                  //  System.out.println(hotel);
+                //}
+            //}
+            return hotels;
+        } catch (IOException e) {
+            System.err.println("Error retrieving hotels: " + e.getMessage());
+        }
+        return new ArrayList<>();
     }
     public static String buildRangeQuery(float minRating) throws Exception {
         // Use Jackson to construct the JSON query
