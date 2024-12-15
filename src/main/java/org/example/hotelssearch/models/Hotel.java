@@ -63,7 +63,7 @@ public class Hotel {
     public float getLowest_rate() {
         return lowest_rate;
     }
-
+    public String _id;
     public void setLowest_rate(float lowest_rate) {
         this.lowest_rate = lowest_rate;
     }
@@ -100,10 +100,19 @@ public class Hotel {
         this.amenities = amenities;
     }
 
+    public void set_id(String _id) {
+        this._id = _id;
+    }
+
+    public String get_id() {
+        return _id;
+    }
+
     // toString method for easy printing
     @Override
     public String toString() {
         return "Hotel{" +
+                "_id='" + _id + '\'' +
                 "name='" + name + '\'' +
                 ", link='" + (link != null ? link : "N/A") + '\'' +
                 ", gps_coordinates=" + gps_coordinates +

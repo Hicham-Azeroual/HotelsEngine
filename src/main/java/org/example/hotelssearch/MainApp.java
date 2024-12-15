@@ -37,8 +37,9 @@ public class MainApp {
         int size = 10;  // Pagination: return up to 10 results
 
         try {
-            List<String> hotels = hotelService.executeAutocompleteQuery(searchTerm1, from, size);
-            hotels.forEach(System.out::println);  // Print the hotel names that match the search term
+           // List<String> hotels = hotelService.executeAutocompleteQuery(searchTerm1, from, size);
+            //hotels.forEach(System.out::println);  // Print the hotel names that match the search term
+          hotelService.retrieveAllHotels(1,30);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -85,6 +85,7 @@ public class HotelService {
     public List<Hotel> retrieveAllHotels(int from, int size) {
         try {
             RequestCounter.increment(); // Increment the request counter
+
             // Search query to retrieve hotels from the 'hotels' index with pagination
             SearchRequest searchRequest = SearchRequest.of(s -> s
                     .index("hotels")
@@ -95,24 +96,31 @@ public class HotelService {
             SearchResponse<Hotel> response = client.search(searchRequest, Hotel.class);
 
             // Check if we have hits and process the results
-            List<Hotel> hotels = response.hits().hits().stream()
-                    .map(Hit::source)  // Extract hotel objects from the hits
-                    .toList();
+            List<Hotel> hotels = new ArrayList<>();
+            for (Hit<Hotel> hit : response.hits().hits()) {
+                Hotel hotel = hit.source();
+                if (hotel != null) {
+                    // Set the _id field in the Hotel object
+                    hotel.set_id(hit.id());
+                    hotels.add(hotel);
+                }
+            }
 
             if (hotels.isEmpty()) {
                 System.out.println("No hotels found.");
-            } //else {
-                // Display each hotel in the console
-                //for (Hotel hotel : hotels) {
-                  //  System.out.println(hotel);
-                //}
-            //}
+            } else {
+                // Display each hotel in the console, including the _id
+                for (Hotel hotel : hotels) {
+                    System.out.println("ID: " + hotel.get_id() + ", " + hotel);
+                }
+            }
             return hotels;
         } catch (IOException e) {
             System.err.println("Error retrieving hotels: " + e.getMessage());
         }
         return new ArrayList<>();
     }
+
     public static String buildRangeQuery(float minRating) throws Exception {
         // Use Jackson to construct the JSON query
         ObjectMapper objectMapper = new ObjectMapper();
