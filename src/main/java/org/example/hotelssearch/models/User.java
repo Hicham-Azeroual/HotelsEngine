@@ -9,6 +9,7 @@ public class User {
     private String password;  // Hashed password
     private String createdAt; // Timestamp of account creation as a string
     private String role;      // User role, default is "user"
+    private int actionsPerformed; // Number of actions performed by the user
 
     // Constructor
     public User(String username, String email, String password) {
@@ -17,10 +18,10 @@ public class User {
         this.password = password;
         this.createdAt = DateTimeFormatter.ISO_INSTANT.format(Instant.now()); // Set the creation time to the current time as a string
         this.role = "user"; // Default role is "user"
+        this.actionsPerformed = 0; // Default actions count
     }
 
     public User() {
-
     }
 
     // Getters and Setters
@@ -64,6 +65,14 @@ public class User {
         this.role = role;
     }
 
+    public int getActionsPerformed() {
+        return actionsPerformed;
+    }
+
+    public void incrementActionsPerformed() {
+        this.actionsPerformed++;
+    }
+
     // toString() method for easy debugging
     @Override
     public String toString() {
@@ -72,6 +81,7 @@ public class User {
                 ", email='" + email + '\'' +
                 ", role='" + role + '\'' +
                 ", createdAt=" + createdAt +
+                ", actionsPerformed=" + actionsPerformed +
                 '}';
     }
 }

@@ -2,6 +2,8 @@ package org.example.hotelssearch.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.example.hotelssearch.utils.GPSCoordinates;
+import org.example.hotelssearch.utils.GoogleMapsGeocoding;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Hotel {
@@ -34,8 +36,8 @@ public class Hotel {
         this.link = link;
     }
 
-    public GpsCoordinates getGps_coordinates() {
-        return gps_coordinates;
+    public  GPSCoordinates getGps_coordinates() {
+        return new GPSCoordinates(gps_coordinates.latitude, gps_coordinates.longitude);
     }
 
     public void setGps_coordinates(GpsCoordinates gps_coordinates) {
@@ -114,28 +116,33 @@ public class Hotel {
                 '}';
     }
 
+    // Method to calculate distance between hotel and current location
+    public  double calculateDistanceTo(GPSCoordinates currentLocation) {
+        return GoogleMapsGeocoding.calculateDistance(currentLocation, getGps_coordinates());
+    }
+
     // Inner class for GPS coordinates
     public static class GpsCoordinates {
         @JsonProperty("lat")
-        private float latitude;
+        private double latitude;
 
         @JsonProperty("lon")
-        private float longitude;
+        private double longitude;
 
         // Getters and Setters
-        public float getLatitude() {
+        public double getLatitude() {
             return latitude;
         }
 
-        public void setLatitude(float latitude) {
+        public void setLatitude(double latitude) {
             this.latitude = latitude;
         }
 
-        public float getLongitude() {
+        public double getLongitude() {
             return longitude;
         }
 
-        public void setLongitude(float longitude) {
+        public void setLongitude(double longitude) {
             this.longitude = longitude;
         }
 

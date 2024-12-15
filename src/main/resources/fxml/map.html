@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hotel Location</title>
+    <style>
+        html, body { height: 100%; margin: 0; padding: 0; }
+        #map { height: 100%; }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+    function initMap() {
+        // Define the coordinates for the user's location and the hotel
+        var userLocation = { lat: 40.7128, lng: -74.0060 }; // New York City (example)
+        var hotelLocation = { lat: 40.730610, lng: -73.935242 }; // Another location in NYC (example)
+
+        // Create a map object
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 13,
+            center: userLocation
+        });
+
+        // Add markers for the user's location and the hotel
+        var userMarker = new google.maps.Marker({
+            position: userLocation,
+            map: map,
+            title: 'Your Location'
+        });
+
+        var hotelMarker = new google.maps.Marker({
+            position: hotelLocation,
+            map: map,
+            title: 'Hotel Location'
+        });
+
+        // Add a route between the two points
+        var directionsService = new google.maps.DirectionsService();
+        var directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
+
+        var request = {
+            origin: userLocation,
+            destination: hotelLocation,
+            travelMode: google.maps.TravelMode.DRIVING
+        };
+
+        directionsService.route(request, function(response, status) {
+            if (status === google.maps.DirectionsStatus.OK) {
+                directionsRenderer.setDirections(response);
+            } else {
+                alert('Directions request failed due to ' + status);
+            }
+        });
+    }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKlP0OtG_BidvHX49sV1NSBwV659xqauo&callback=initMap"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171" fx:controller="org.example.hotelssearch.controllers.UserRequestReelTime">
+    <Label text="Real-Time User Activity" styleClass="chart-title"/>
+    <LineChart fx:id="userActivityChart">
+        <xAxis>
+            <NumberAxis fx:id="xAxis" label="Time (seconds)" lowerBound="-30" upperBound="30" autoRanging="false" />
+        </xAxis>
+        <yAxis>
+            <NumberAxis fx:id="yAxis" label="Number of Requests" lowerBound="0" upperBound="100" autoRanging="true" />
+        </yAxis>
+    </LineChart>
+</VBox>

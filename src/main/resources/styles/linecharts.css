@@ -1,0 +1,37 @@
+.root {
+    -fx-background-color: white;
+}
+
+/* Chart Title */
+.chart-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+
+/* Line Chart Styles */
+.line-chart {
+    -fx-background-color: white;
+    -fx-padding: 10px;
+}
+
+.line-chart .chart-plot-background {
+    -fx-background-color: white;
+}
+
+.line-chart .chart-vertical-grid-lines,
+.line-chart .chart-horizontal-grid-lines {
+    -fx-stroke: transparent;
+}
+
+.line-chart .chart-series-line {
+    -fx-stroke: #1E90FF; /* Blue color */
+    -fx-stroke-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0, 0, 5);
+}
+
+.line-chart .chart-line-symbol {
+    -fx-background-color: #1E90FF, white; /* Blue color with white background */
+    -fx-background-radius: 5px;
+    -fx-padding: 5px;
+}

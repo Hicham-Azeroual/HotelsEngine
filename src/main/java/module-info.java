@@ -9,9 +9,13 @@ module org.example.hotelssearch {
     requires com.fasterxml.jackson.datatype.jsr310;
     requires com.fasterxml.jackson.databind;
     requires jbcrypt;
+    requires com.google.gson;
+    requires javafx.web;
     requires java.net.http;
     requires javafx.controls;
-
+    requires GMapsFX;
+    requires java.desktop;
+    requires kafka.clients;
     opens org.example.hotelssearch.controllers to javafx.fxml; // Allow JavaFX to access the controllers package
     exports org.example.hotelssearch;  // Export the main package
     exports org.example.hotelssearch.models;  // Export the models package

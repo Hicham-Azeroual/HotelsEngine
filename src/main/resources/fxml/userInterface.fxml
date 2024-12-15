@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ListView?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<ScrollPane fitToWidth="true" fitToHeight="true" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.hotelssearch.controllers.UserInterface">
+    <BorderPane>
+        <!-- Top: Search Bar and Profile -->
+        <top>
+            <HBox alignment="CENTER" spacing="20" styleClass="top-bar">
+                <TextField fx:id="searchCityBar" promptText="Search city..." styleClass="text-field" HBox.hgrow="ALWAYS" />
+                <VBox spacing="5" alignment="CENTER_LEFT" styleClass="autocomplete-container">
+                    <TextField fx:id="searchNameBar" promptText="Search by name..." styleClass="text-field" HBox.hgrow="ALWAYS" />
+                    <ListView fx:id="autocompleteListView" visible="false" managed="false" styleClass="autocomplete-list" />
+                </VBox>
+                <ComboBox fx:id="sortComboBox" promptText="Sort by..." styleClass="sort-combo-box">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Price" />
+                            <String fx:value="Name" />
+                            <String fx:value="Distance" />
+                            <String fx:value="Rating" />
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+                <Button fx:id="searchButton" styleClass="search-button" text="Search" />
+                <ImageView fx:id="profileImage" fitHeight="40" fitWidth="40" styleClass="image-view" />
+                <Button fx:id="voiceSearchButton" text="Voice Search" onAction="#handleCurrentLocationButtonAction"/>
+                <ProgressIndicator fx:id="voiceRecognitionProgressIndicator" visible="false" />
+                <Button fx:id="chatbotButton" text="Open Chatbot" onAction="#openChatbot" styleClass="chatbot-button" />
+            </HBox>
+        </top>
+        <!-- Left: Filters -->
+        <left>
+            <VBox spacing="20" styleClass="sidebar">
+                <Label styleClass="label" text="Filters" />
+
+                <!-- Filter by Price -->
+                <Label styleClass="label" text="Price Range" />
+                <VBox alignment="CENTER" spacing="5">
+                    <Slider fx:id="priceRangeSlider" blockIncrement="10" majorTickUnit="100" max="1000" min="0" showTickLabels="false" showTickMarks="false" styleClass="slider" />
+                    <Label fx:id="maxPriceLabel" styleClass="label" text="0" />
+                </VBox>
+
+                <!-- Filter by Rating -->
+                <VBox spacing="10">
+                    <Label styleClass="label" text="Rating" />
+                    <VBox spacing="5">
+                        <RadioButton fx:id="rating5Stars" styleClass="radio-button" text="★★★★★ (4355)" onAction="#handleRatingSelection" />
+                        <RadioButton fx:id="rating4To5Stars" styleClass="radio-button" text="★★★★☆ (1293)" onAction="#handleRatingSelection" />
+                        <RadioButton fx:id="rating3To4Stars" styleClass="radio-button" text="★★★☆☆ (662)" onAction="#handleRatingSelection" />
+                        <RadioButton fx:id="rating2To3Stars" styleClass="radio-button" text="★★☆☆☆ (228)" onAction="#handleRatingSelection" />
+                        <RadioButton fx:id="rating1To2Stars" styleClass="radio-button" text="★☆☆☆☆ (292)" onAction="#handleRatingSelection" />
+                    </VBox>
+                </VBox>
+
+                <!-- Filter by Amenities -->
+                <VBox spacing="10">
+                    <Label styleClass="label" text="Amenities" />
+                    <VBox spacing="5">
+                        <CheckBox fx:id="wifiCheckBox" styleClass="checkbox" text="WiFi">
+                            <VBox.margin>
+                                <Insets left="10.0" />
+                            </VBox.margin>
+                        </CheckBox>
+                        <CheckBox fx:id="parkingCheckBox" styleClass="checkbox" text="Parking">
+                            <VBox.margin>
+                                <Insets left="10.0" />
+                            </VBox.margin>
+                        </CheckBox>
+                        <CheckBox fx:id="breakfastCheckBox" styleClass="checkbox" text="Breakfast">
+                            <VBox.margin>
+                                <Insets left="10.0" />
+                            </VBox.margin>
+                        </CheckBox>
+                        <CheckBox fx:id="gymCheckBox" styleClass="checkbox" text="Gym">
+                            <VBox.margin>
+                                <Insets left="10.0" />
+                            </VBox.margin>
+                        </CheckBox>
+                        <CheckBox fx:id="poolCheckBox" styleClass="checkbox" text="Pool">
+                            <VBox.margin>
+                                <Insets left="10.0" />
+                            </VBox.margin>
+                        </CheckBox>
+                    </VBox>
+                </VBox>
+
+                <!-- Search Button -->
+                <Button fx:id="currentLocationButton" styleClass="button" text="Search using current location" onAction="#handleCurrentLocationButtonAction" />
+            </VBox>
+        </left>
+
+        <!-- Center: Hotel Cards -->
+        <center>
+            <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+                <VBox fx:id="card" spacing="15.0">
+                    <!-- Example Card -->
+                    <VBox alignment="CENTER" styleClass="card">
+                        <!-- Card content -->
+                    </VBox>
+                    <!-- Add more cards dynamically here -->
+                    <ProgressIndicator fx:id="loadingSpinner"  />
+                </VBox>
+            </ScrollPane>
+        </center>
+    </BorderPane>
+</ScrollPane>

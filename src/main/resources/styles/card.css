@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
+
+* {
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #dce0e4;
+  padding: 50px 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+ul {
+  padding-left: 0;
+  list-style: none;
+}
+
+li {
+  display: inline;
+}
+
+.card-container {
+  background-color: #fff;
+  max-width: 1000px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 300px 1fr 185px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.hotel-image img {
+  width: 100%;
+  display: block;
+  height: 100%;
+}
+
+.hotel-info {
+  background-color: #fff;
+  padding: 30px;
+}
+
+.title {
+  font-size: 24px;
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+
+.subtitle {
+  text-transform: uppercase;
+  font-size: 14px;
+  color: #f6a12d;
+}
+
+.reviews ul {
+  display: inline-block;
+  margin: 20px 20px 20px 0;
+  border-right: 1px solid #ccc;
+  padding-right: 20px;
+}
+
+.reviews ul:last-child {
+  border-right: none;
+}
+
+.stars li {
+  color: #ccc;
+}
+
+.yellow {
+  color: #ffcc00;
+}
+
+.trip-advisor {
+  color: #569742;
+}
+
+.trip-advisor li span {
+  color: #000;
+  font-size: 24px;
+}
+
+.details p {
+  color: #aaa;
+  font-weight: 300;
+}
+
+.hotel-price {
+  position: relative;
+}
+
+.pricing-content {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  justify-content: space-between;
+  padding: 30px 30px 70px 30px;
+  height: 100%;
+}
+
+.guarantee {
+  font-size: 15px;
+  text-align: center;
+  color: #aaa;
+  font-weight: 300;
+}
+
+.guarantee span {
+  color: #f6a12d;
+}
+
+.price h3 {
+  font-weight: 400;
+  font-size: 24px;
+  text-align: center;
+}
+
+.price h3 span {
+  font-weight: 300;
+  font-size: 16px;
+  color: #aaa;
+}
+
+.btn-cta {
+  background: #0099cc;
+  border: 0;
+  width: 100%;
+  height: 50px;
+  color: #fff;
+  text-transform: uppercase;
+  position: absolute;
+  bottom: 0;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+@media (max-width: 900px) {
+  .card-container {
+    display: grid;
+    grid-template-rows: 25% auto 25%;
+    grid-template-columns: 1fr;
+    width: 60%;
+  }
+
+  .guarantee {
+    font-size: 24px;
+  }
+
+  .price {
+    margin: auto;
+    height: 100px;
+  }
+
+  .price h3 {
+    font-weight: 400;
+    font-size: 28px;
+    text-align: center;
+  }
+
+  .price h3 span {
+    font-weight: 300;
+    font-size: 16px;
+    color: #aaa;
+  }
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 20px;
+  }
+
+  .card-container {
+    width: 100%;
+  }
+}
