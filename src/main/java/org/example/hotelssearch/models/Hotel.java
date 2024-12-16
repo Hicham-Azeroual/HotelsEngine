@@ -18,6 +18,28 @@ public class Hotel {
     private float overall_rating;
     private int reviews;
     private String[] amenities;
+    public String _id;
+
+    // Constructeur
+    public Hotel(String name, String link, GpsCoordinates gps_coordinates, String check_in_time, String check_out_time,
+                 float lowest_rate, String[] images, float overall_rating, int reviews, String[] amenities, String _id) {
+        this.name = name;
+        this.link = link;
+        this.gps_coordinates = gps_coordinates;
+        this.check_in_time = check_in_time;
+        this.check_out_time = check_out_time;
+        this.lowest_rate = lowest_rate;
+        this.images = images;
+        this.overall_rating = overall_rating;
+        this.reviews = reviews;
+        this.amenities = amenities;
+        this._id = _id;
+    }
+
+    // Constructeur par défaut (sans arguments)
+    public Hotel() {
+        // Initialisation par défaut
+    }
 
     // Getters and Setters
     public String getName() {
@@ -36,8 +58,8 @@ public class Hotel {
         this.link = link;
     }
 
-    public  GPSCoordinates getGps_coordinates() {
-        return new GPSCoordinates(gps_coordinates.latitude, gps_coordinates.longitude);
+    public GPSCoordinates getGps_coordinates() {
+        return new GPSCoordinates(gps_coordinates.getLatitude(), gps_coordinates.getLongitude());
     }
 
     public void setGps_coordinates(GpsCoordinates gps_coordinates) {
@@ -63,7 +85,7 @@ public class Hotel {
     public float getLowest_rate() {
         return lowest_rate;
     }
-    public String _id;
+
     public void setLowest_rate(float lowest_rate) {
         this.lowest_rate = lowest_rate;
     }
@@ -100,12 +122,12 @@ public class Hotel {
         this.amenities = amenities;
     }
 
-    public void set_id(String _id) {
-        this._id = _id;
-    }
-
     public String get_id() {
         return _id;
+    }
+
+    public void set_id(String _id) {
+        this._id = _id;
     }
 
     // toString method for easy printing
@@ -113,7 +135,7 @@ public class Hotel {
     public String toString() {
         return "Hotel{" +
                 "_id='" + _id + '\'' +
-                "name='" + name + '\'' +
+                ", name='" + name + '\'' +
                 ", link='" + (link != null ? link : "N/A") + '\'' +
                 ", gps_coordinates=" + gps_coordinates +
                 ", check_in_time='" + (check_in_time != null ? check_in_time : "N/A") + '\'' +
@@ -126,7 +148,7 @@ public class Hotel {
     }
 
     // Method to calculate distance between hotel and current location
-    public  double calculateDistanceTo(GPSCoordinates currentLocation) {
+    public double calculateDistanceTo(GPSCoordinates currentLocation) {
         return GoogleMapsGeocoding.calculateDistance(currentLocation, getGps_coordinates());
     }
 
@@ -138,7 +160,17 @@ public class Hotel {
         @JsonProperty("lon")
         private double longitude;
 
-        // Getters and Setters
+        // Default constructor
+        public GpsCoordinates() {
+        }
+
+        // Parameterized constructor
+        public GpsCoordinates(double latitude, double longitude) {
+            this.latitude = latitude;
+            this.longitude = longitude;
+        }
+
+        // Getters and setters
         public double getLatitude() {
             return latitude;
         }
@@ -162,5 +194,4 @@ public class Hotel {
                     ", longitude=" + longitude +
                     '}';
         }
-    }
-}
+    }}

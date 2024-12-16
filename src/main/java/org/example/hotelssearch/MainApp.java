@@ -3,6 +3,7 @@ package org.example.hotelssearch;
 import org.example.hotelssearch.models.Hotel;
 import org.example.hotelssearch.models.User;
 import org.example.hotelssearch.services.HotelService;
+import org.example.hotelssearch.services.UserService;
 import org.example.hotelssearch.utils.GetCurrentPosition;
 
 import java.util.Arrays;
@@ -30,7 +31,7 @@ public class MainApp {
         // Get location data
 
         // Display the results
-
+        UserService userService = new UserService();
         String searchTerm1 = "Flip";
         int from = 0;  // Pagination: starting from the first result
         int size = 10;  // Pagination: return up to 10 results

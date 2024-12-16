@@ -13,7 +13,7 @@ public class User {
     @JsonProperty("created_at")
     private String createdAt; // Timestamp of account creation as a string
 
-    private String role;      // User role, default is "user"
+    private String role ="admin";      // User role, default is "user"
 
     // Constructor
     public User(String username, String email, String password,String role) {
@@ -21,7 +21,7 @@ public class User {
         this.email = email;
         this.password = password;
         this.createdAt = DateTimeFormatter.ISO_INSTANT.format(Instant.now()); // Set the creation time to the current time as a string
-        this.role = "role"; // Default role is "user"
+        this.role = "admin"; // Default role is "user"
     }
 
     public User() {

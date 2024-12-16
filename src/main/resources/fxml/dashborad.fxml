@@ -76,7 +76,7 @@
    <center>
       <!-- StackPane pour superposer les différentes pages -->
       <StackPane fx:id="contentStack" BorderPane.alignment="CENTER">
-         <ScrollPane fx:id="scrollpane1" visible="false">
+         <ScrollPane fx:id="scrollpane1">
             <content>
                <!-- Contenu du Manage -->
                <AnchorPane fx:id="managePane" prefHeight="579.0" prefWidth="985.0">
@@ -94,9 +94,10 @@
                            <FontAwesomeIconView fill="WHITE" glyphName="PLUS" />
                         </graphic>
                      </Button>
-                     <VBox fx:id="container" layoutX="-11.0" layoutY="149.0" prefHeight="413.0" prefWidth="925.0" spacing="15.0" styleClass="container" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0">
+                     <VBox fx:id="container" layoutX="-11.0" layoutY="149.0" prefHeight="376.0" prefWidth="925.0" spacing="15.0" styleClass="container" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0">
                      </VBox>
                      <TextField layoutX="323.0" layoutY="67.0" prefHeight="39.0" prefWidth="387.0" promptText="Search" styleClass="search-bar" />
+                     <Button fx:id="loadMoreButton" layoutX="30.0" layoutY="533.0" mnemonicParsing="false" styleClass="loadMore" text="Load more" textFill="WHITE" />
                      <!-- Ajoute ton contenu spécifique à Manage ici -->
                   </children>
                </AnchorPane>
@@ -198,7 +199,7 @@
                </AnchorPane>
             </content>
          </ScrollPane>
-         <AnchorPane fx:id="AddHotel">
+         <AnchorPane fx:id="AddHotel" visible="false">
             <VBox alignment="CENTER" spacing="20" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0">
                <padding>
                   <Insets bottom="20" left="20" right="20" top="20" />

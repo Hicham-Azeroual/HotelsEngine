@@ -21,7 +21,7 @@
         </Label>
 
         <!-- Label for the location -->
-        <Label fx:id="locationLabel" layoutX="239.0" layoutY="52.0" styleClass="label-location" text="Hotel Retlaw, Trademark Collection by Wyndham">
+        <Label fx:id="locationLabel" layoutX="239.0" layoutY="52.0" prefHeight="20.0" prefWidth="569.0" styleClass="label-location" text="Hotel Retlaw, Trademark Collection by Wyndham">
             <font>
                 <Font size="14.0" />
             </font>
