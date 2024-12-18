@@ -21,7 +21,7 @@ public class User {
         this.email = email;
         this.password = password;
         this.createdAt = DateTimeFormatter.ISO_INSTANT.format(Instant.now()); // Set the creation time to the current time as a string
-        this.role = "admin"; // Default role is "user"
+        this.role = "user"; // Default role is "user"
     }
 
     public User() {

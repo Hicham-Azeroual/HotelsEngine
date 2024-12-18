@@ -23,6 +23,7 @@
         <!-- Top: Search Bar and Profile -->
         <top>
             <HBox alignment="CENTER" spacing="20" styleClass="top-bar">
+                <!-- Currency Selection ComboBox -->
                 <TextField fx:id="searchCityBar" promptText="Search city..." styleClass="text-field" HBox.hgrow="ALWAYS" />
                 <VBox spacing="5" alignment="CENTER_LEFT" styleClass="autocomplete-container">
                     <TextField fx:id="searchNameBar" promptText="Search by name..." styleClass="text-field" HBox.hgrow="ALWAYS" />
@@ -42,68 +43,159 @@
                 <ImageView fx:id="profileImage" fitHeight="40" fitWidth="40" styleClass="image-view" />
                 <Button fx:id="voiceSearchButton" text="Voice Search" onAction="#handleCurrentLocationButtonAction"/>
                 <ProgressIndicator fx:id="voiceRecognitionProgressIndicator" visible="false" />
+                <ComboBox fx:id="currencyComboBox" promptText="Currency" styleClass="currency-combo-box">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="USD" /> <!-- Dollar américain -->
+                            <String fx:value="EUR" /> <!-- Euro -->
+                            <String fx:value="AED" /> <!-- Dirham des Émirats arabes unis -->
+                            <String fx:value="MAD" /> <!-- Dirham marocain -->
+                            <String fx:value="GBP" /> <!-- Livre sterling -->
+                            <String fx:value="JPY" /> <!-- Yen japonais -->
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+
                 <Button fx:id="chatbotButton" text="Open Chatbot" onAction="#openChatbot" styleClass="chatbot-button" />
             </HBox>
         </top>
         <!-- Left: Filters -->
         <left>
-            <VBox spacing="20" styleClass="sidebar">
-                <Label styleClass="label" text="Filters" />
+            <!-- Ajoutez un ScrollPane pour permettre le défilement des filtres -->
+            <ScrollPane fitToWidth="true" styleClass="sidebar-scroll">
+                <VBox spacing="20" styleClass="sidebar">
+                    <Label styleClass="label" text="Filters" />
 
-                <!-- Filter by Price -->
-                <Label styleClass="label" text="Price Range" />
-                <VBox alignment="CENTER" spacing="5">
-                    <Slider fx:id="priceRangeSlider" blockIncrement="10" majorTickUnit="100" max="1000" min="0" showTickLabels="false" showTickMarks="false" styleClass="slider" />
-                    <Label fx:id="maxPriceLabel" styleClass="label" text="0" />
-                </VBox>
-
-                <!-- Filter by Rating -->
-                <VBox spacing="10">
-                    <Label styleClass="label" text="Rating" />
-                    <VBox spacing="5">
-                        <RadioButton fx:id="rating5Stars" styleClass="radio-button" text="★★★★★ (4355)" onAction="#handleRatingSelection" />
-                        <RadioButton fx:id="rating4To5Stars" styleClass="radio-button" text="★★★★☆ (1293)" onAction="#handleRatingSelection" />
-                        <RadioButton fx:id="rating3To4Stars" styleClass="radio-button" text="★★★☆☆ (662)" onAction="#handleRatingSelection" />
-                        <RadioButton fx:id="rating2To3Stars" styleClass="radio-button" text="★★☆☆☆ (228)" onAction="#handleRatingSelection" />
-                        <RadioButton fx:id="rating1To2Stars" styleClass="radio-button" text="★☆☆☆☆ (292)" onAction="#handleRatingSelection" />
+                    <!-- Filter by Price -->
+                    <Label styleClass="label" text="Price Range" />
+                    <VBox alignment="CENTER" spacing="5">
+                        <Slider fx:id="priceRangeSlider" blockIncrement="10" majorTickUnit="100" max="1000" min="0" showTickLabels="false" showTickMarks="false" styleClass="slider" />
+                        <Label fx:id="maxPriceLabel" styleClass="label" text="0" />
                     </VBox>
-                </VBox>
 
-                <!-- Filter by Amenities -->
-                <VBox spacing="10">
-                    <Label styleClass="label" text="Amenities" />
-                    <VBox spacing="5">
-                        <CheckBox fx:id="wifiCheckBox" styleClass="checkbox" text="WiFi">
-                            <VBox.margin>
-                                <Insets left="10.0" />
-                            </VBox.margin>
-                        </CheckBox>
-                        <CheckBox fx:id="parkingCheckBox" styleClass="checkbox" text="Parking">
-                            <VBox.margin>
-                                <Insets left="10.0" />
-                            </VBox.margin>
-                        </CheckBox>
-                        <CheckBox fx:id="breakfastCheckBox" styleClass="checkbox" text="Breakfast">
-                            <VBox.margin>
-                                <Insets left="10.0" />
-                            </VBox.margin>
-                        </CheckBox>
-                        <CheckBox fx:id="gymCheckBox" styleClass="checkbox" text="Gym">
-                            <VBox.margin>
-                                <Insets left="10.0" />
-                            </VBox.margin>
-                        </CheckBox>
-                        <CheckBox fx:id="poolCheckBox" styleClass="checkbox" text="Pool">
-                            <VBox.margin>
-                                <Insets left="10.0" />
-                            </VBox.margin>
-                        </CheckBox>
+                    <!-- Filter by Rating -->
+                    <VBox spacing="10">
+                        <Label styleClass="label" text="Rating" />
+                        <VBox spacing="5">
+                            <RadioButton fx:id="rating5Stars" styleClass="radio-button" text="★★★★★ (4355)" onAction="#handleRatingSelection" />
+                            <RadioButton fx:id="rating4To5Stars" styleClass="radio-button" text="★★★★☆ (1293)" onAction="#handleRatingSelection" />
+                            <RadioButton fx:id="rating3To4Stars" styleClass="radio-button" text="★★★☆☆ (662)" onAction="#handleRatingSelection" />
+                            <RadioButton fx:id="rating2To3Stars" styleClass="radio-button" text="★★☆☆☆ (228)" onAction="#handleRatingSelection" />
+                            <RadioButton fx:id="rating1To2Stars" styleClass="radio-button" text="★☆☆☆☆ (292)" onAction="#handleRatingSelection" />
+                        </VBox>
                     </VBox>
-                </VBox>
 
-                <!-- Search Button -->
-                <Button fx:id="currentLocationButton" styleClass="button" text="Search using current location" onAction="#handleCurrentLocationButtonAction" />
-            </VBox>
+                    <!-- Filter by Amenities -->
+                    <VBox spacing="10">
+                        <Label styleClass="label" text="Amenities" />
+                        <VBox spacing="5">
+                            <CheckBox fx:id="breakfastCheckBox" styleClass="checkbox" text="Breakfast">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="gymCheckBox" styleClass="checkbox" text="Gym">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="poolCheckBox" styleClass="checkbox" text="Pool">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <!-- Ajoutez les nouvelles commodités ici -->
+                            <CheckBox fx:id="airConditioningCheckBox" styleClass="checkbox" text="Air conditioning">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="balconyCheckBox" styleClass="checkbox" text="Balcony">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="kidFriendlyCheckBox" styleClass="checkbox" text="Kid-friendly">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="fireplaceCheckBox" styleClass="checkbox" text="Fireplace">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="fitnessCenterCheckBox" styleClass="checkbox" text="Fitness center">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="heatingCheckBox" styleClass="checkbox" text="Heating">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="hotTubCheckBox" styleClass="checkbox" text="Hot tub">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="ironingBoardCheckBox" styleClass="checkbox" text="Ironing board">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="kitchenCheckBox" styleClass="checkbox" text="Kitchen">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="microwaveCheckBox" styleClass="checkbox" text="Microwave">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="outdoorGrillCheckBox" styleClass="checkbox" text="Outdoor grill">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="ovenStoveCheckBox" styleClass="checkbox" text="Oven stove">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="smokeFreeCheckBox" styleClass="checkbox" text="Smoke-free">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="cableTVCheckBox" styleClass="checkbox" text="Cable TV">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="washerCheckBox" styleClass="checkbox" text="Washer">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="freeParkingCheckBox" styleClass="checkbox" text="Free parking">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                            <CheckBox fx:id="freeWiFiCheckBox" styleClass="checkbox" text="Free Wi-Fi">
+                                <VBox.margin>
+                                    <Insets left="10.0" />
+                                </VBox.margin>
+                            </CheckBox>
+                        </VBox>
+                    </VBox>
+                    <!-- Search Button -->
+                    <Button fx:id="currentLocationButton" styleClass="button" text="Search using current location" onAction="#handleCurrentLocationButtonAction" />
+                </VBox>
+            </ScrollPane>
         </left>
 
         <!-- Center: Hotel Cards -->

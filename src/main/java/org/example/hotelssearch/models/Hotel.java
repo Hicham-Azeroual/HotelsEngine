@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.hotelssearch.utils.GPSCoordinates;
 import org.example.hotelssearch.utils.GoogleMapsGeocoding;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Hotel {
 
@@ -128,6 +131,28 @@ public class Hotel {
 
     public void set_id(String _id) {
         this._id = _id;
+    }
+    public Map<String, Object> toElasticsearchFormat() {
+        Map<String, Object> hotelMap = new HashMap<>();
+        hotelMap.put("name", this.name);
+        hotelMap.put("link", this.link);
+        hotelMap.put("check_in_time", this.check_in_time);
+        hotelMap.put("check_out_time", this.check_out_time);
+        hotelMap.put("lowest_rate", this.lowest_rate);
+        hotelMap.put("images", this.images);
+        hotelMap.put("overall_rating", this.overall_rating);
+        hotelMap.put("reviews", this.reviews);
+        hotelMap.put("amenities", this.amenities);
+
+        // Convertir gps_coordinates en un format compatible avec Elasticsearch
+        if (this.gps_coordinates != null) {
+            Map<String, Double> geoPoint = new HashMap<>();
+            geoPoint.put("lat", this.gps_coordinates.getLatitude());
+            geoPoint.put("lon", this.gps_coordinates.getLongitude());
+            hotelMap.put("gps_coordinates", geoPoint);
+        }
+
+        return hotelMap;
     }
 
     // toString method for easy printing

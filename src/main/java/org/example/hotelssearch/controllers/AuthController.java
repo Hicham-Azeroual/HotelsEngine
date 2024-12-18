@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import org.example.hotelssearch.models.SessionManager;
 import org.example.hotelssearch.models.User;
 import org.example.hotelssearch.services.HotelService;
 import org.example.hotelssearch.services.UserService;
@@ -154,11 +155,12 @@ public class AuthController {
             User user = userService.signIn(username, password);
             System.out.print(user);
             if (user != null && "admin".equals(user.getRole())) {
+                SessionManager.setCurrentUser(user);
+                System.out.println(SessionManager.getCurrentUser());
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Admin login successful.");
                 // Redirect to admin dashboard
                 System.out.print(user);
                 switchToDashboard("admin");
-                System.out.print("hhhhhhhhhhhh");
             } else if (user != null && "user".equals(user.getRole())) {
                 showAlert(Alert.AlertType.INFORMATION, "Success", "User login successful.");
                 // Redirect to user dashboard

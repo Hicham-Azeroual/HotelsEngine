@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171" fx:controller="org.example.hotelssearch.controllers.UserRequestReelTime">
-    <Label text="Real-Time User Activity" styleClass="chart-title"/>
+<VBox style="-fx-background-color: f4f4f4;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.hotelssearch.controllers.UserRequestReelTime">
+    <Label styleClass="chart-title" text="Real-Time User Activity">
+      <VBox.margin>
+         <Insets left="173.0" />
+      </VBox.margin></Label>
     <LineChart fx:id="userActivityChart">
         <xAxis>
-            <NumberAxis fx:id="xAxis" label="Time (seconds)" lowerBound="-30" upperBound="30" autoRanging="false" />
+            <NumberAxis autoRanging="false" label="Time (seconds)" lowerBound="-30" upperBound="30" fx:id="xAxis" />
         </xAxis>
         <yAxis>
-            <NumberAxis fx:id="yAxis" label="Number of Requests" lowerBound="0" upperBound="100" autoRanging="true" />
+            <NumberAxis fx:id="yAxis" autoRanging="true" label="Number of Requests" lowerBound="0" upperBound="100" />
         </yAxis>
     </LineChart>
 </VBox>

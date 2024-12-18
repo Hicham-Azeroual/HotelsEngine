@@ -13,9 +13,10 @@ public class MainApp {
     public static void main(String[] args) throws Exception {
         // Initialize the HotelService class
         HotelService hotelService = new HotelService();
-        //UserService userService=new UserService();
-        //User newUser = new User("hicham", "hicham@gmail.com", "hicham123");
-        //System.out.println(userService.signIn("hicham","hicham123"));
+        UserService userService=new UserService();
+        User newUser = new User("Mohammed", "mohammed@gmail.com", "mohammed123","admin");
+        userService.createUser(newUser);
+        System.out.println(userService.signIn("Mohammed","hicham123"));
         // List<String> amenities = Arrays.asList("wifi", "pool", "parking","Spa", "Bar");
 
         String searchTerm = "Flower Town Hotel";
@@ -31,7 +32,7 @@ public class MainApp {
         // Get location data
 
         // Display the results
-        UserService userService = new UserService();
+        //UserService userService = new UserService();
         String searchTerm1 = "Flip";
         int from = 0;  // Pagination: starting from the first result
         int size = 10;  // Pagination: return up to 10 results

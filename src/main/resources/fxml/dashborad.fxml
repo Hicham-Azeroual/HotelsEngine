@@ -16,12 +16,11 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="645.0" prefWidth="1263.0" stylesheets="@../styles/dashboard.css" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.hotelssearch.controllers.Dashborad">
    <left>
-      <AnchorPane prefHeight="590.0" prefWidth="278.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+      <AnchorPane prefHeight="574.0" prefWidth="247.0" styleClass="sidebar" BorderPane.alignment="CENTER">
          <children>
             <VBox layoutY="87.0" prefHeight="371.0" prefWidth="278.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                <children>
@@ -56,27 +55,32 @@
                   </Button>
                </children>
             </VBox>
+            <Label fx:id="usernameLabel" layoutX="60.0" layoutY="34.0" prefHeight="36.0" prefWidth="127.0" text="Username" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Label>
          </children>
       </AnchorPane>
    </left>
    <top>
-      <AnchorPane prefHeight="71.0" prefWidth="1263.0" style="-fx-background-color: #10506a;" styleClass="top-bar" BorderPane.alignment="CENTER">
+      <AnchorPane prefHeight="71.0" prefWidth="1263.0" style="-fx-background-color: #4a90e2;" styleClass="top-bar" BorderPane.alignment="CENTER">
          <children>
-            <Circle fill="DODGERBLUE" layoutX="1214.0" layoutY="35.0" radius="19.0" stroke="BLACK" strokeType="INSIDE" />
-            <FontAwesomeIconView glyphName="BELL" layoutX="1154.0" layoutY="44.0" size="26" wrappingWidth="34.0" />
+            <FontAwesomeIconView glyphName="BELL" layoutX="1149.0" layoutY="44.0" size="26" wrappingWidth="34.0" />
             <FontAwesomeIconView glyphName="BED" layoutX="64.0" layoutY="49.0" size="40" />
             <Label layoutX="118.0" layoutY="13.0" text="LuxeStay" textFill="WHITE">
                <font>
                   <Font name="System Bold" size="30.0" />
                </font>
             </Label>
+            <FontAwesomeIconView glyphName="USER" layoutX="1199.0" layoutY="44.0" size="26" wrappingWidth="34.0" />
          </children>
       </AnchorPane>
    </top>
    <center>
       <!-- StackPane pour superposer les différentes pages -->
       <StackPane fx:id="contentStack" BorderPane.alignment="CENTER">
-         <ScrollPane fx:id="scrollpane1">
+         <ScrollPane fx:id="scrollpane1" visible="false">
             <content>
                <!-- Contenu du Manage -->
                <AnchorPane fx:id="managePane" prefHeight="579.0" prefWidth="985.0">
@@ -94,19 +98,23 @@
                            <FontAwesomeIconView fill="WHITE" glyphName="PLUS" />
                         </graphic>
                      </Button>
-                     <VBox fx:id="container" layoutX="-11.0" layoutY="149.0" prefHeight="376.0" prefWidth="925.0" spacing="15.0" styleClass="container" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0">
+                     <TextField fx:id="searchBar" layoutX="323.0" layoutY="67.0" onAction="#search" prefHeight="39.0" prefWidth="387.0" promptText="Search" styleClass="search-bar" />
+                     <AnchorPane layoutX="30.0" layoutY="121.0" prefHeight="443.0" prefWidth="925.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0">
+                        <children>
+                           <VBox fx:id="container" layoutY="-1.0" prefHeight="407.0" prefWidth="925.0" spacing="15.0" styleClass="container" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                      </VBox>
-                     <TextField layoutX="323.0" layoutY="67.0" prefHeight="39.0" prefWidth="387.0" promptText="Search" styleClass="search-bar" />
-                     <Button fx:id="loadMoreButton" layoutX="30.0" layoutY="533.0" mnemonicParsing="false" styleClass="loadMore" text="Load more" textFill="WHITE" />
+                           <Button fx:id="loadMoreButton" layoutY="416.0" mnemonicParsing="false" onAction="#loadMoreHotels" styleClass="loadMore" text="Load more" textFill="WHITE" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="30.0" />
+                        </children>
+                     </AnchorPane>
                      <!-- Ajoute ton contenu spécifique à Manage ici -->
                   </children>
                </AnchorPane>
             </content>
          </ScrollPane>
-         <ScrollPane fx:id="scrollpane2" visible="false">
+         <ScrollPane fx:id="scrollpane2">
             <content>
                <!-- Contenu du Dashboard -->
-               <AnchorPane fx:id="dashboardPane">
+               <AnchorPane fx:id="dashboardPane" style="-fx-background-color: white;">
                   <children>
                      <HBox layoutX="40.0" layoutY="107.0" prefHeight="109.0" prefWidth="905.0" spacing="31.0">
                         <children>
@@ -117,7 +125,7 @@
                                        <Font name="System Bold" size="20.0" />
                                     </font>
                                  </Label>
-                                 <Label layoutX="89.0" layoutY="65.0" text="338" textFill="WHITE">
+                                 <Label fx:id="NumberofHotels" layoutX="101.0" layoutY="65.0" text="0" textFill="WHITE">
                                     <font>
                                        <Font name="System Bold" size="20.0" />
                                     </font>
@@ -126,12 +134,12 @@
                            </AnchorPane>
                            <AnchorPane layoutX="10.0" layoutY="10.0" prefHeight="101.0" prefWidth="214.0" styleClass="statique">
                               <children>
-                                 <Label layoutX="9.0" prefHeight="83.0" prefWidth="181.0" text="number of reviews/last week" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+                                 <Label layoutX="9.0" prefHeight="83.0" prefWidth="181.0" text="number of reviews" textAlignment="CENTER" textFill="WHITE" wrapText="true">
                                     <font>
                                        <Font name="System Bold" size="20.0" />
                                     </font>
                                  </Label>
-                                 <Label fx:id="numOfReviws" layoutX="84.0" layoutY="68.0" text="399" textFill="WHITE">
+                                 <Label fx:id="numOfReviws" layoutX="95.0" layoutY="68.0" text="0" textFill="WHITE">
                                     <font>
                                        <Font name="System Bold" size="20.0" />
                                     </font>
@@ -145,7 +153,7 @@
                                        <Font name="System Bold" size="20.0" />
                                     </font>
                                  </Label>
-                                 <Label layoutX="89.0" layoutY="65.0" text="298" textFill="WHITE">
+                                 <Label fx:id="numOfUsers" layoutX="101.0" layoutY="65.0" text="0" textFill="WHITE">
                                     <font>
                                        <Font name="System Bold" size="20.0" />
                                     </font>
@@ -159,7 +167,7 @@
                                        <Font name="System Bold" size="20.0" />
                                     </font>
                                  </Label>
-                                 <Label fx:id="numOfHotel" layoutX="89.0" layoutY="70.0" text="338" textFill="WHITE">
+                                 <Label fx:id="numOfHotel" layoutX="89.0" layoutY="70.0" text="143" textFill="WHITE">
                                     <font>
                                        <Font name="System Bold" size="20.0" />
                                     </font>
@@ -193,6 +201,7 @@
                            <!-- Ajout du contenu dans les cellules -->
                            <fx:include source="pieChart.fxml" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                            <!-- Autres éléments pour d'autres colonnes ou lignes si nécessaire -->
+                           <fx:include source="lineChartsReuqests.fxml" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                         </children>
                      </GridPane>
                   </children>
@@ -208,7 +217,8 @@
                <Label style="-fx-font-size: 25; -fx-font-weight: bold;" styleClass="title" text="Add a Hotel">
                   <font>
                      <Font size="96.0" />
-                  </font></Label>
+                  </font>
+               </Label>
 
                <GridPane alignment="CENTER" hgap="10" prefHeight="405.0" prefWidth="595.0" vgap="10">
                   <!-- Hotel Name -->
@@ -245,9 +255,14 @@
                   <Label text="Number of Reviews:" GridPane.columnIndex="0" GridPane.rowIndex="8" />
                   <TextField fx:id="reviewsField" promptText="Number of Reviews" GridPane.columnIndex="1" GridPane.rowIndex="8" />
 
+                  <!-- New Field: Image URL -->
+                  <Label text="Image URL:" GridPane.columnIndex="0" GridPane.rowIndex="10" />
+                  <TextField fx:id="imageUrlField" promptText="Image URL" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+
                   <!-- Amenities -->
                   <Label text="Amenities:" GridPane.columnIndex="0" GridPane.rowIndex="9" />
                   <TextArea fx:id="amenitiesField" promptText="Amenities (separated by commas)" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+
                   <columnConstraints>
                      <ColumnConstraints />
                      <ColumnConstraints />
@@ -263,14 +278,81 @@
                      <RowConstraints />
                      <RowConstraints />
                      <RowConstraints />
+                     <RowConstraints /> <!-- Ajoutez une nouvelle ligne pour l'Image URL -->
                   </rowConstraints>
                </GridPane>
 
                <Button fx:id="addHotelButton" onAction="#addHotel" styleClass="addButton" text="Add" textFill="WHITE">
                   <font>
                      <Font name="System Bold" size="85.0" />
-                  </font></Button>
+                  </font>
+               </Button>
             </VBox>
+         </AnchorPane>
+         <AnchorPane fx:id="UpdateHotel" layoutX="10.0" layoutY="10.0" visible="false">
+            <children>
+               <VBox alignment="CENTER" spacing="20" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0">
+                  <padding>
+                     <Insets bottom="20" left="20" right="20" top="20" />
+                  </padding>
+                  <children>
+                     <Label style="-fx-font-size: 25; -fx-font-weight: bold;" styleClass="title" text="Update a Hotel">
+                        <font>
+                           <Font size="96.0" />
+                        </font>
+                     </Label>
+                     <GridPane alignment="CENTER" hgap="10" prefHeight="405.0" prefWidth="595.0" vgap="10">
+                        <columnConstraints>
+                           <ColumnConstraints />
+                           <ColumnConstraints />
+                        </columnConstraints>
+                        <rowConstraints>
+                           <RowConstraints />
+                           <RowConstraints />
+                           <RowConstraints />
+                           <RowConstraints />
+                           <RowConstraints />
+                           <RowConstraints />
+                           <RowConstraints />
+                           <RowConstraints />
+                           <RowConstraints />
+                           <RowConstraints />
+                           <RowConstraints /> <!-- Ajoutez une nouvelle ligne pour l'Image URL -->
+                        </rowConstraints>
+                        <children>
+                           <Label styleClass="lable" text="Name:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                           <TextField fx:id="nameField1" promptText="Hotel Name" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                           <Label text="Website:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                           <TextField fx:id="linkField1" promptText="Website URL" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                           <Label text="Latitude:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                           <TextField fx:id="latitudeField1" promptText="Latitude" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                           <Label text="Longitude:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                           <TextField fx:id="longitudeField1" promptText="Longitude" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                           <Label text="Check-in Time:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                           <TextField fx:id="checkInTimeField1" promptText="Check-in Time" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                           <Label text="Check-out Time:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                           <TextField fx:id="checkOutTimeField1" promptText="Check-out Time" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                           <Label text="Price:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                           <TextField fx:id="lowestRateField1" promptText="Lowest Price" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                           <Label text="Rating:" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                           <TextField fx:id="overallRatingField1" promptText="Overall Rating" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                           <Label text="Number of Reviews:" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                           <TextField fx:id="reviewsField1" promptText="Number of Reviews" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                           <Label text="Amenities:" GridPane.columnIndex="0" GridPane.rowIndex="9" />
+                           <TextArea fx:id="amenitiesField1" promptText="Amenities (separated by commas)" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                           <!-- New Field: Image URL -->
+                           <Label text="Image URL:" GridPane.columnIndex="0" GridPane.rowIndex="10" />
+                           <TextField fx:id="imageUrlField1" promptText="Image URL" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+                        </children>
+                     </GridPane>
+                     <Button fx:id="updateHotelButton" onAction="#updateHotel" styleClass="addButton" text="Update" textFill="WHITE">
+                        <font>
+                           <Font name="System Bold" size="85.0" />
+                        </font>
+                     </Button>
+                  </children>
+               </VBox>
+            </children>
          </AnchorPane>
       </StackPane>
    </center>

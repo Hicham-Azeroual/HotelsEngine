@@ -14,22 +14,28 @@ import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
 import jakarta.json.stream.JsonParser;
+import javafx.scene.control.Alert;
 import org.example.hotelssearch.models.Hotel;
 import org.example.hotelssearch.utils.ElasticsearchConnection;
 import org.example.hotelssearch.utils.GPSCoordinates;
 import org.example.hotelssearch.utils.GeocodingService;
 import org.example.hotelssearch.utils.RequestCounter;
 import co.elastic.clients.elasticsearch.core.search.Suggestion;
+import org.json.JSONObject;
 
 
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.*;
 
 public class HotelService {
+    private static final String API_KEY = "cur_live_q4NCSYGhZqU5Ta99md9kmDdhuwVEVRB8SJP1Y9Y9";
+    private static final String API_URL = "https://api.currencyapi.com/v3/latest?apikey="+API_KEY;
+
     private static ElasticsearchClient client = null;
     // Constructor to initialize the Elasticsearch client
     public HotelService() {
@@ -40,53 +46,137 @@ public class HotelService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize Elasticsearch client", e);
 }
-}// Function to search hotels by name
-    public List<Hotel> searchHotelsByName(String name) {
-        List<Hotel> matchingHotels = new ArrayList<>();
 
+}// Function to search hotels by name
+    public static double convertCurrency(String targetCurrency, double amount) throws Exception {
+        // Fetch the latest exchange rates
+        JSONObject response = fetchExchangeRates();
+
+        // Check if the target currency exists in the response
+        if (response.getJSONObject("data").has(targetCurrency)) {
+            // Get the exchange rate for the target currency
+            double exchangeRate = response.getJSONObject("data").getJSONObject(targetCurrency).getDouble("value");
+
+            // Perform the conversion
+            return amount * exchangeRate;
+        } else {
+            throw new IllegalArgumentException("Target currency not found in the API response.");
+        }
+    }
+
+    // Fetch the latest exchange rates from the API
+    private static JSONObject fetchExchangeRates() throws Exception {
+        URL url = new URL(API_URL);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+
+        // Read the response
+        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        StringBuilder response = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            response.append(line);
+        }
+        reader.close();
+
+        // Parse the JSON response
+        return new JSONObject(response.toString());
+}
+    public long getTotalNumberOfUsers()
+    {
         try {
-            // Create the search query
-            SearchRequest searchRequest = SearchRequest.of(s -> s
-                    .index("hotels") // Specify the index name
-                    .query(q -> q.match(m -> m
-                            .field("name") // Search in the "name" field
-                            .query(name)  // The search query
-                    ))
+            // Créer une requête de comptage pour l'index "users"
+            CountRequest countRequest = CountRequest.of(c -> c
+                    .index("users") // Spécifiez l'index "users"
             );
 
-            // Execute the search query
-            SearchResponse<Hotel> response = client.search(searchRequest, Hotel.class);
+            // Exécuter la requête de comptage
+            CountResponse response = client.count(countRequest);
 
-            // Print the raw response for debugging
-            System.out.println("Elasticsearch Response: " + response.toString());
+            // Récupérer le nombre total de documents dans l'index "users"
+            long totalUsers = response.count();
 
-            // Extract the hits and map them to Hotel objects
-            for (Hit<Hotel> hit : response.hits().hits()) {
-                matchingHotels.add(hit.source());
-            }
+            // Afficher le résultat dans la console (facultatif)
+            System.out.println("Total number of users: " + totalUsers);
 
-            // Display the results in the console
-            if (matchingHotels.isEmpty()) {
-                System.out.println("No hotels found for the name: " + name);
-            } else {
-                System.out.println("Hotels matching the name \"" + name + "\":");
-                matchingHotels.forEach(System.out::println);
-            }
+            return totalUsers;
 
         } catch (IOException e) {
-            System.err.println("Error searching hotels by name: " + e.getMessage());
+            System.err.println("Error retrieving total number of users: " + e.getMessage());
+            throw new RuntimeException("Failed to retrieve total number of users", e);
         }
-
-        return matchingHotels;
-    }    // Function to retrieve all hotels from Elasticsearch and display them in the console
+    }
+//    public List<Hotel> searchHotelsByName(String name) {
+//        List<Hotel> matchingHotels = new ArrayList<>();
+//
+//        try {
+//            // Create the search query
+//            SearchRequest searchRequest = SearchRequest.of(s -> s
+//                    .index("hotels") // Specify the index name
+//                    .query(q -> q.match(m -> m
+//                            .field("name") // Search in the "name" field
+//                            .query(name)  // The search query
+//                    ))
+//            );
+//
+//            // Execute the search query
+//            SearchResponse<Hotel> response = client.search(searchRequest, Hotel.class);
+//
+//            // Print the raw response for debugging
+//            System.out.println("Elasticsearch Response: " + response.toString());
+//
+//            // Extract the hits and map them to Hotel objects
+//            for (Hit<Hotel> hit : response.hits().hits()) {
+//                matchingHotels.add(hit.source());
+//            }
+//
+//            // Display the results in the console
+//            if (matchingHotels.isEmpty()) {
+//                System.out.println("No hotels found for the name: " + name);
+//            } else {
+//                System.out.println("Hotels matching the name \"" + name + "\":");
+//                matchingHotels.forEach(System.out::println);
+//            }
+//
+//        } catch (IOException e) {
+//            System.err.println("Error searching hotels by name: " + e.getMessage());
+//        }
+//
+//        return matchingHotels;
+//    }    // Function to retrieve all hotels from Elasticsearch and display them in the console
+    public List<Hotel> executeSearch(SearchRequest searchRequest) {
+        try {
+            SearchResponse<Hotel> response = client.search(searchRequest, Hotel.class);
+            List<Hotel> hotels = new ArrayList<>();
+            for (Hit<Hotel> hit : response.hits().hits()) {
+                Hotel hotel = hit.source();
+                if (hotel != null) {
+                    hotel.set_id(hit.id());
+                    hotels.add(hotel);
+                }
+            }
+            return hotels;
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to execute search query.");
+            return new ArrayList<>();
+        }
+    }
     public boolean createHotel(Hotel hotel) {
         try {
+            // Convertir l'objet Hotel en un format compatible avec Elasticsearch
+            Map<String, Object> hotelMap = hotel.toElasticsearchFormat();
+
             // Créer une requête d'indexation
-            IndexRequest<Hotel> request = IndexRequest.of(i -> i
+            IndexRequest<Map<String, Object>> request = IndexRequest.of(i -> i
                     .index("hotels") // Nom de l'index Elasticsearch
-                    .document(hotel)  // Document à indexer
+                    .document(hotelMap)  // Document à indexer
             );
+
+            // Exécuter la requête d'indexation
             IndexResponse response = client.index(request);
+
+            // Vérifier le résultat de la requête
             if (response.result() == Result.Created) {
                 System.out.println("Hotel added successfully with ID: " + response.id());
                 return true;
@@ -131,6 +221,38 @@ public class HotelService {
             return false;
         }
     }
+    public Hotel retrieveHotelById(String hotelId) {
+        try {
+            // Créer une requête de recherche par ID
+            GetRequest getRequest = GetRequest.of(g -> g
+                    .index("hotels") // Nom de l'index
+                    .id(hotelId)      // ID de l'hôtel
+            );
+
+            // Exécuter la requête
+            GetResponse<Hotel> response = client.get(getRequest, Hotel.class);
+
+            // Vérifier si le document existe
+            if (response.found()) {
+                // Récupérer l'objet Hotel
+                Hotel hotel = response.source();
+
+                // Assigner l'ID Elasticsearch à l'objet Hotel
+                if (hotel != null) {
+                    hotel.set_id(response.id());
+                }
+
+                return hotel;
+            } else {
+                System.err.println("Hotel with ID " + hotelId + " not found.");
+                return null;
+            }
+        } catch (IOException e) {
+            System.err.println("Error retrieving hotel with ID " + hotelId + ": " + e.getMessage());
+            return null;
+        }
+    }
+
     public static List<Hotel> retrieveAllHotels(int from, int size) {
         try {
             RequestCounter.increment(); // Increment the request counter
@@ -263,117 +385,117 @@ public class HotelService {
 
         return matchingHotels;
     }
-    public void searchByCityName(String cityName) {
-        try {
-            // Step 1: Retrieve GPS coordinates for the city
-            System.out.println("Fetching GPS coordinates for city: " + cityName);
-            GPSCoordinates coordinates = GeocodingService.getLocationCoordinates(cityName);
-
-            // Step 2: Extract latitude and longitude from the coordinates
-            double latitude = coordinates.getLatitude();
-            double longitude = coordinates.getLongitude();
-            System.out.println("Coordinates for " + cityName + ": " + coordinates);
-
-            // Step 3: Search for hotels using the coordinates
-            List<Hotel> hotels = searchHotelsByLocation(latitude, longitude);
-
-            // Step 4: Display the search results
-            if (hotels.isEmpty()) {
-                System.out.println("No hotels found near " + cityName + ".");
-            } else {
-                System.out.println("Hotels found near " + cityName + ":");
-                hotels.forEach(System.out::println);
-            }
-        } catch (Exception e) {
-            System.err.println("Error searching for hotels: " + e.getMessage());
-        }
-    }
+//    public void searchByCityName(String cityName) {
+//        try {
+//            // Step 1: Retrieve GPS coordinates for the city
+//            System.out.println("Fetching GPS coordinates for city: " + cityName);
+//            GPSCoordinates coordinates = GeocodingService.getLocationCoordinates(cityName);
+//
+//            // Step 2: Extract latitude and longitude from the coordinates
+//            double latitude = coordinates.getLatitude();
+//            double longitude = coordinates.getLongitude();
+//            System.out.println("Coordinates for " + cityName + ": " + coordinates);
+//
+//            // Step 3: Search for hotels using the coordinates
+//            List<Hotel> hotels = searchHotelsByLocation(latitude, longitude);
+//
+//            // Step 4: Display the search results
+//            if (hotels.isEmpty()) {
+//                System.out.println("No hotels found near " + cityName + ".");
+//            } else {
+//                System.out.println("Hotels found near " + cityName + ":");
+//                hotels.forEach(System.out::println);
+//            }
+//        } catch (Exception e) {
+//            System.err.println("Error searching for hotels: " + e.getMessage());
+//        }
+//    }
     // Add this function to your HotelService class
-    public List<Hotel> searchHotelsByRating(float minRating) {
-        List<Hotel> matchingHotels = new ArrayList<>();
-
-        try {
-            // Build the range query for `overall_rating`
-            String queryJson = buildRangeQuery(minRating);
-
-            // Parse the JSON query into a Query object using JsonParser
-            JsonpMapper jsonpMapper = client._transport().jsonpMapper();
-            JsonReader jsonReader = Json.createReader(new StringReader(queryJson));
-            JsonObject queryJsonObject = jsonReader.readObject();
-            JsonParser parser = Json.createParser(new StringReader(queryJsonObject.toString()));
-            Query query = Query.of(builder -> builder.withJson(parser, jsonpMapper));
-
-            // Create and execute the search request
-            SearchRequest searchRequest = SearchRequest.of(s -> s
-                    .index("hotels")
-                    .query(query)  // Attach the range query
-            );
-
-            SearchResponse<Hotel> response = client.search(searchRequest, Hotel.class);
-
-            // Extract and map hits to Hotel objects
-            for (Hit<Hotel> hit : response.hits().hits()) {
-                matchingHotels.add(hit.source());
-            }
-
-            // Display the results
-            if (matchingHotels.isEmpty()) {
-                System.out.println("No hotels found with a rating greater than or equal to " + minRating);
-            } else {
-                System.out.println("Hotels with a rating >= " + minRating + ":");
-                matchingHotels.forEach(System.out::println);
-            }
-
-        } catch (IOException e) {
-            System.err.println("Error searching hotels by rating: " + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("Error building query: " + e.getMessage());
-        }
-
-        return matchingHotels;
-    }
-    public List<Hotel> searchHotelsByMaxPrice(float maxPrice) {
-        List<Hotel> matchingHotels = new ArrayList<>();
-
-        try {
-            // Build the range query for the price
-            String queryJson = buildRangePriceQuery(maxPrice);
-
-            // Parse the JSON query into a Query object
-            JsonReader jsonReader = Json.createReader(new StringReader(queryJson));
-            JsonObject queryJsonObject = jsonReader.readObject();
-            JsonParser parser = Json.createParser(new StringReader(queryJsonObject.toString()));
-            Query query = Query.of(builder -> builder.withJson(parser, client._transport().jsonpMapper()));
-
-            // Create and execute the search request
-            SearchRequest searchRequest = SearchRequest.of(s -> s
-                    .index("hotels")
-                    .query(query) // Attach the range query
-            );
-
-            SearchResponse<Hotel> response = client.search(searchRequest, Hotel.class);
-
-            // Map hits to Hotel objects
-            for (Hit<Hotel> hit : response.hits().hits()) {
-                matchingHotels.add(hit.source());
-            }
-
-            // Display the results
-            if (matchingHotels.isEmpty()) {
-                System.out.println("No hotels found with a price <= " + maxPrice);
-            } else {
-                System.out.println("Hotels with a price <= " + maxPrice + ":");
-                matchingHotels.forEach(System.out::println);
-            }
-
-        } catch (IOException e) {
-            System.err.println("Error searching hotels by maximum price: " + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("Error building query: " + e.getMessage());
-        }
-
-        return matchingHotels;
-    }
+//    public List<Hotel> searchHotelsByRating(float minRating) {
+//        List<Hotel> matchingHotels = new ArrayList<>();
+//
+//        try {
+//            // Build the range query for `overall_rating`
+//            String queryJson = buildRangeQuery(minRating);
+//
+//            // Parse the JSON query into a Query object using JsonParser
+//            JsonpMapper jsonpMapper = client._transport().jsonpMapper();
+//            JsonReader jsonReader = Json.createReader(new StringReader(queryJson));
+//            JsonObject queryJsonObject = jsonReader.readObject();
+//            JsonParser parser = Json.createParser(new StringReader(queryJsonObject.toString()));
+//            Query query = Query.of(builder -> builder.withJson(parser, jsonpMapper));
+//
+//            // Create and execute the search request
+//            SearchRequest searchRequest = SearchRequest.of(s -> s
+//                    .index("hotels")
+//                    .query(query)  // Attach the range query
+//            );
+//
+//            SearchResponse<Hotel> response = client.search(searchRequest, Hotel.class);
+//
+//            // Extract and map hits to Hotel objects
+//            for (Hit<Hotel> hit : response.hits().hits()) {
+//                matchingHotels.add(hit.source());
+//            }
+//
+//            // Display the results
+//            if (matchingHotels.isEmpty()) {
+//                System.out.println("No hotels found with a rating greater than or equal to " + minRating);
+//            } else {
+//                System.out.println("Hotels with a rating >= " + minRating + ":");
+//                matchingHotels.forEach(System.out::println);
+//            }
+//
+//        } catch (IOException e) {
+//            System.err.println("Error searching hotels by rating: " + e.getMessage());
+//        } catch (Exception e) {
+//            System.err.println("Error building query: " + e.getMessage());
+//        }
+//
+//        return matchingHotels;
+//    }
+//    public List<Hotel> searchHotelsByMaxPrice(float maxPrice) {
+//        List<Hotel> matchingHotels = new ArrayList<>();
+//
+//        try {
+//            // Build the range query for the price
+//            String queryJson = buildRangePriceQuery(maxPrice);
+//
+//            // Parse the JSON query into a Query object
+//            JsonReader jsonReader = Json.createReader(new StringReader(queryJson));
+//            JsonObject queryJsonObject = jsonReader.readObject();
+//            JsonParser parser = Json.createParser(new StringReader(queryJsonObject.toString()));
+//            Query query = Query.of(builder -> builder.withJson(parser, client._transport().jsonpMapper()));
+//
+//            // Create and execute the search request
+//            SearchRequest searchRequest = SearchRequest.of(s -> s
+//                    .index("hotels")
+//                    .query(query) // Attach the range query
+//            );
+//
+//            SearchResponse<Hotel> response = client.search(searchRequest, Hotel.class);
+//
+//            // Map hits to Hotel objects
+//            for (Hit<Hotel> hit : response.hits().hits()) {
+//                matchingHotels.add(hit.source());
+//            }
+//
+//            // Display the results
+//            if (matchingHotels.isEmpty()) {
+//                System.out.println("No hotels found with a price <= " + maxPrice);
+//            } else {
+//                System.out.println("Hotels with a price <= " + maxPrice + ":");
+//                matchingHotels.forEach(System.out::println);
+//            }
+//
+//        } catch (IOException e) {
+//            System.err.println("Error searching hotels by maximum price: " + e.getMessage());
+//        } catch (Exception e) {
+//            System.err.println("Error building query: " + e.getMessage());
+//        }
+//
+//        return matchingHotels;
+//    }
 
     public static String buildQuery(String searchTerm, Float minRating, Float maxPrice, Double latitude, Double longitude, Double radiusInKm, List<String> amenities, int from, int size) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -593,7 +715,6 @@ public class HotelService {
 
         return ratingDistribution;
     }
-
     public long getTotalNumberOfHotels() {
         try {
             CountRequest countRequest = CountRequest.of(c -> c
@@ -608,37 +729,37 @@ public class HotelService {
         }
     }
 
-    // Method to get the number of hotels with missing data
-    public long getNumberOfHotelsWithMissingData() {
-        try {
-            BoolQuery.Builder boolQuery = new BoolQuery.Builder();
-
-            // Check for missing fields
-            boolQuery.should(s -> s.bool(b -> b
-                    .mustNot(m -> m.exists(ExistsQuery.of(e -> e.field("name"))))
-                    .mustNot(m -> m.exists(ExistsQuery.of(e -> e.field("overall_rating"))))
-                    .mustNot(m -> m.exists(ExistsQuery.of(e -> e.field("reviews"))))
-            ));
-
-            // Check for empty strings (only for text fields)
-            boolQuery.should(s -> s.term(TermQuery.of(t -> t.field("name").value(""))));
-
-            // Check for zero values (for numeric fields)
-            boolQuery.should(s -> s.term(TermQuery.of(t -> t.field("overall_rating").value(0.0))));
-            boolQuery.should(s -> s.term(TermQuery.of(t -> t.field("reviews").value(0))));
-
-            CountRequest countRequest = CountRequest.of(c -> c
-                    .index("hotels")
-                    .query(boolQuery.build()._toQuery())
-            );
-
-            CountResponse response = client.count(countRequest);
-            return response.count();
-        } catch (IOException e) {
-            System.err.println("Error getting number of hotels with missing data: " + e.getMessage());
-            return 0;
-        }
-    }    // Method to get the total number of reviews
+//    // Method to get the number of hotels with missing data
+//    public long getNumberOfHotelsWithMissingData() {
+//        try {
+//            BoolQuery.Builder boolQuery = new BoolQuery.Builder();
+//
+//            // Check for missing fields
+//            boolQuery.should(s -> s.bool(b -> b
+//                    .mustNot(m -> m.exists(ExistsQuery.of(e -> e.field("name"))))
+//                    .mustNot(m -> m.exists(ExistsQuery.of(e -> e.field("overall_rating"))))
+//                    .mustNot(m -> m.exists(ExistsQuery.of(e -> e.field("reviews"))))
+//            ));
+//
+//            // Check for empty strings (only for text fields)
+//            boolQuery.should(s -> s.term(TermQuery.of(t -> t.field("name").value(""))));
+//
+//            // Check for zero values (for numeric fields)
+//            boolQuery.should(s -> s.term(TermQuery.of(t -> t.field("overall_rating").value(0.0))));
+//            boolQuery.should(s -> s.term(TermQuery.of(t -> t.field("reviews").value(0))));
+//
+//            CountRequest countRequest = CountRequest.of(c -> c
+//                    .index("hotels")
+//                    .query(boolQuery.build()._toQuery())
+//            );
+//
+//            CountResponse response = client.count(countRequest);
+//            return response.count();
+//        } catch (IOException e) {
+//            System.err.println("Error getting number of hotels with missing data: " + e.getMessage());
+//            return 0;
+//        }
+//    }    // Method to get the total number of reviews
     public long getTotalNumberOfReviews() {
         try {
             SearchRequest searchRequest = SearchRequest.of(s -> s
@@ -718,7 +839,6 @@ public class HotelService {
         // Convert to JSON string
         return objectMapper.writeValueAsString(queryWrapper);
     }
-
     public List<String> executeAutocompleteQuery(String searchTerm, int from, int size) throws Exception {
         // Build the autocomplete query
         String queryJson = buildAutocompleteQuery(searchTerm, from, size);
@@ -743,9 +863,46 @@ public class HotelService {
         return hotelNames;
     }
 
+    public boolean updateHotel(String hotelId, Hotel updatedHotel) {
+        try {
+            // Convertir l'objet Hotel en un format compatible avec Elasticsearch
+            Map<String, Object> hotelMap = updatedHotel.toElasticsearchFormat();
 
+            // Créer la requête de mise à jour
+            UpdateRequest<Map<String, Object>, Map<String, Object>> updateRequest = UpdateRequest.of(u -> u
+                    .index("hotels") // Nom de l'index
+                    .id(hotelId)      // ID de l'hôtel
+                    .doc(hotelMap)    // Document mis à jour
+                    .docAsUpsert(true) // Si le document n'existe pas, il sera créé
+            );
+
+            // Exécuter la requête de mise à jour
+            UpdateResponse<Map<String, Object>> response = client.update(updateRequest, Map.class);
+
+            // Vérifier le statut de la réponse
+            if (response.result() == Result.Updated || response.result() == Result.Created) {
+                System.out.println("Hotel with ID " + hotelId + " has been successfully updated.");
+                return true;
+            } else {
+                System.err.println("Failed to update hotel with ID " + hotelId + ". Result: " + response.result());
+                return false;
+            }
+        } catch (IOException e) {
+            System.err.println("Error updating hotel with ID " + hotelId + ": " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    private void showAlert(Alert.AlertType alertType, String title, String message) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
     public void closeClient() {
         ElasticsearchConnection.closeClient();
         System.out.println("Elasticsearch client closed.");
     }
+
 }

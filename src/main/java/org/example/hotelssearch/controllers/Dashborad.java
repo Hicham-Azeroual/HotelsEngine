@@ -1,26 +1,53 @@
 package org.example.hotelssearch.controllers;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.util.Pair;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import org.example.hotelssearch.models.Hotel;
+import org.example.hotelssearch.models.SessionManager;
+import org.example.hotelssearch.models.User;
 import org.example.hotelssearch.services.HotelService;
 import org.example.hotelssearch.utils.GoogleMapsGeocoding;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Dashborad {
+
+public class Dashborad implements Initializable {
     private static final int PAGE_SIZE = 10; // Number of hotels per page
     private int currentPage = 0; // Current page index
+
+    @FXML
+    private Label usernameLabel;
+
+    @FXML
+    private Label NumberofHotels;
+
+    @FXML
+    private Label numOfReviws;
+
+    @FXML
+    private Label numOfUsers;
 
     @FXML
     private TextField nameField;
@@ -53,6 +80,42 @@ public class Dashborad {
     private TextArea amenitiesField;
 
     @FXML
+    private TextField imageUrlField;
+
+    @FXML
+    private TextField nameField1;
+
+    @FXML
+    private TextField linkField1;
+
+    @FXML
+    private TextField latitudeField1;
+
+    @FXML
+    private TextField longitudeField1;
+
+    @FXML
+    private TextField checkInTimeField1;
+
+    @FXML
+    private TextField checkOutTimeField1;
+
+    @FXML
+    private TextField lowestRateField1;
+
+    @FXML
+    private TextField overallRatingField1;
+
+    @FXML
+    private TextField reviewsField1;
+
+    @FXML
+    private TextArea amenitiesField1;
+
+    @FXML
+    private TextField imageUrlField1;
+
+    @FXML
     public ScrollPane scrollpane1;
 
     @FXML
@@ -74,18 +137,6 @@ public class Dashborad {
     private VBox container;
 
     @FXML
-    private StackPane contentStack;
-
-    @FXML
-    private AnchorPane dashboardPane;
-
-    @FXML
-    private AnchorPane managePane;
-
-    @FXML
-    private AnchorPane statisticsPane;
-
-    @FXML
     private Button createHotel;
 
     @FXML
@@ -94,15 +145,24 @@ public class Dashborad {
     @FXML
     private Button loadMoreButton;
 
+    @FXML
+    private AnchorPane UpdateHotel;
+
+    @FXML
+    private TextField searchBar;
+
+    private String hotelId;
+
+
     private final HotelService hotelService = new HotelService();
 
     @FXML
     private void showDashboard() {
         updateActiveButton(dashboardButton);
-        dashboardButton.getStyleClass().add("card");
         scrollpane2.setVisible(true);
         scrollpane1.setVisible(false);
         AddHotel.setVisible(false);
+        UpdateHotel.setVisible(false);
     }
 
     @FXML
@@ -110,13 +170,17 @@ public class Dashborad {
         scrollpane2.setVisible(false);
         scrollpane1.setVisible(false);
         AddHotel.setVisible(true);
+        UpdateHotel.setVisible(false);
     }
+
 
     @FXML
     private void showManage() {
         updateActiveButton(manageButton);
+        dashboardButton.getStyleClass().add("card");
         scrollpane2.setVisible(false);
         scrollpane1.setVisible(true);
+        UpdateHotel.setVisible(false);
         AddHotel.setVisible(false);
 
         // Show loading indicator
@@ -127,14 +191,17 @@ public class Dashborad {
         Task<List<Hotel>> task = new Task<>() {
             @Override
             protected List<Hotel> call() throws Exception {
-                return hotelService.retrieveAllHotels(1, 15);
+                currentPage = 0; // Réinitialiser la page actuelle
+                int from = currentPage * PAGE_SIZE; // Index de départ
+                int size = PAGE_SIZE; // Nombre d'hôtels à récupérer
+                return hotelService.retrieveAllHotels(from, size); // Récupérer les hôtels
             }
         };
 
         task.setOnSucceeded(event -> {
-            List<Hotel> hotels = task.getValue();
             container.getChildren().remove(loadingIndicator); // Remove loading indicator
-            displayHotels(hotels); // Display hotels
+            List<Hotel> hotels = task.getValue(); // Récupérer les hôtels récupérés
+            displayHotels(hotels); // Afficher les hôtels
         });
 
         task.setOnFailed(event -> {
@@ -148,8 +215,83 @@ public class Dashborad {
         thread.start();
     }
     @FXML
+    private void search(ActionEvent event) {
+        // Récupérer le terme de recherche depuis la Text Field
+        String searchTerm = searchBar.getText().trim();
+
+        // Valider le terme de recherche
+        if (searchTerm.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Warning", "Please enter a search term.");
+            return;
+        }
+
+        // Construire la requête de recherche
+        SearchRequest searchRequest = buildSearchRequest(searchTerm);
+
+        // Exécuter la requête de recherche
+        List<Hotel> searchResults = hotelService.executeSearch(searchRequest);
+
+        // Afficher les résultats de la recherche
+        displayHotels(searchResults);
+    }
+    private SearchRequest buildSearchRequest(String searchTerm) {
+        return SearchRequest.of(s -> s
+                .index("hotels") // Nom de l'index Elasticsearch
+                .query(q -> q
+                        .multiMatch(mm -> mm
+                                .query(searchTerm) // Terme de recherche
+                                .fields("name", "location", "amenities") // Champs sur lesquels effectuer la recherche
+                                .type(TextQueryType.BestFields) // Stratégie de recherche
+                        )
+                )
+        );
+    }
+
+    public void showUpdateForm(Hotel hotel) {
+        this.hotelId = hotel.get_id();
+        System.out.println(hotelId + "m");
+
+        // Préremplir le formulaire avec les données de l'hôtel
+        nameField1.setText(hotel.getName());
+        System.out.println(hotel.get_id()  + hotel.getName());
+        linkField1.setText(hotel.getLink()); // Utiliser getLink() au lieu de getWebsite()
+        latitudeField1.setText(String.valueOf(hotel.getGps_coordinates().getLatitude()));
+        longitudeField1.setText(String.valueOf(hotel.getGps_coordinates().getLongitude()));
+        checkInTimeField1.setText(hotel.getCheck_in_time());
+        checkOutTimeField1.setText(hotel.getCheck_out_time());
+        lowestRateField1.setText(String.valueOf(hotel.getLowest_rate()));
+        overallRatingField1.setText(String.valueOf(hotel.getOverall_rating()));
+        reviewsField1.setText(String.valueOf(hotel.getReviews()));
+        amenitiesField1.setText(String.join(", ", hotel.getAmenities()));
+        System.out.println(hotel.getImages()[0]);
+        imageUrlField1.setText(hotel.getImages()[0]);
+        // Afficher le formulaire de mise à jour
+        UpdateHotel.setVisible(true);
+        scrollpane1.setVisible(false);
+        scrollpane2.setVisible(false);
+        AddHotel.setVisible(false);
+    }
+
+    @FXML
     private void signOut() {
         updateActiveButton(signOutButton);
+        SessionManager.logout();
+        System.out.println(SessionManager.getCurrentUser());
+        try {
+            // Charger la page de connexion
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/hello-view.fxml"));
+            Parent root = loader.load();
+
+            // Récupérer la scène actuelle
+            Scene currentScene = signOutButton.getScene();
+
+            // Remplacer le contenu de la scène par la page de connexion
+            currentScene.setRoot(root);
+            currentScene.getWindow().sizeToScene();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to load login page.");
+        }
     }
 
     private void updateActiveButton(Button activeButton) {
@@ -172,13 +314,10 @@ public class Dashborad {
     private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     public void displayHotels(List<Hotel> hotels) {
-        container.getChildren().clear();
+        container.getChildren().removeIf(node -> !(node instanceof Button));
 
-        int startIndex = currentPage * PAGE_SIZE;
-        int endIndex = Math.min(startIndex + PAGE_SIZE, hotels.size());
 
-        for (int i = startIndex; i < endIndex; i++) {
-            Hotel hotel = hotels.get(i);
+        for (Hotel hotel : hotels) {
             executorService.submit(() -> {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/HotelCard.fxml"));
@@ -195,14 +334,11 @@ public class Dashborad {
             });
         }
 
-        // Add a "Load More" button if there are more hotels to load
-        if (endIndex < hotels.size()) {
-            Button loadMoreButton = new Button("Load More");
-            loadMoreButton.setOnAction(event -> {
-                currentPage++;
-                displayHotels(hotels);
-            });
-            container.getChildren().add(loadMoreButton);
+        // Gérer la visibilité du bouton "Load More"
+        if (hotels.size() == PAGE_SIZE) {
+            loadMoreButton.setVisible(true); // Afficher le bouton si des hôtels sont disponibles
+        } else {
+            loadMoreButton.setVisible(false); // Masquer le bouton si tous les hôtels sont chargés
         }
     }
 
@@ -214,41 +350,35 @@ public class Dashborad {
         alert.showAndWait();
     }
 
-    @FXML
-    public void initialize() {
-        System.out.println("Initializing Dashboard");
-        if (dashboardButton == null) {
-            System.out.println("dashboardButton is null");
-        } else {
-            System.out.println("dashboardButton is not null");
-        }
-        showDashboard();
-    }
+
 
     public void reloadHotels() {
-        container.getChildren().clear();
-        currentPage = 0; // Reset the current page
+        container.getChildren().clear(); // Effacer le conteneur
+        currentPage = 0; // Réinitialiser la page actuelle
 
-        // Show loading indicator
+        // Afficher l'indicateur de chargement
         ProgressIndicator loadingIndicator = new ProgressIndicator();
         container.getChildren().add(loadingIndicator);
 
+        // Exécuter la tâche de récupération des hôtels dans un thread séparé
         Task<List<Hotel>> task = new Task<>() {
             @Override
             protected List<Hotel> call() throws Exception {
-                return hotelService.retrieveAllHotels(1, 15);
+                int from = currentPage * PAGE_SIZE; // Index de départ
+                int size = PAGE_SIZE; // Nombre d'hôtels à récupérer
+                return hotelService.retrieveAllHotels(from, size); // Récupérer les hôtels de la première page
             }
         };
 
         task.setOnSucceeded(event -> {
-            List<Hotel> hotels = task.getValue();
-            container.getChildren().remove(loadingIndicator); // Remove loading indicator
-            displayHotels(hotels); // Display hotels
+            container.getChildren().remove(loadingIndicator); // Retirer l'indicateur de chargement
+            List<Hotel> hotels = task.getValue(); // Récupérer les hôtels récupérés
+            displayHotels(hotels); // Afficher les hôtels
         });
 
         task.setOnFailed(event -> {
             Throwable error = task.getException();
-            container.getChildren().remove(loadingIndicator); // Remove loading indicator
+            container.getChildren().remove(loadingIndicator); // Retirer l'indicateur de chargement
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to retrieve hotels: " + error.getMessage());
         });
 
@@ -267,6 +397,7 @@ public class Dashborad {
 
         // Récupérer le bouton deleteButton
         Button deleteButton = (Button) card.lookup("#deleteButton");
+        Button updateButton = (Button) card.lookup("#updateButton");
 
         // Remplir les informations de base
         if (nameLabel != null) nameLabel.setText(hotel.getName());
@@ -313,6 +444,9 @@ public class Dashborad {
         if (deleteButton != null) {
             deleteButton.setUserData(hotel.get_id());
         }
+        if (updateButton != null) {
+            updateButton.setUserData(hotel.get_id());
+        }
     }
 
     @FXML
@@ -329,6 +463,13 @@ public class Dashborad {
             float overallRating = Float.parseFloat(overallRatingField.getText()); // Utilisation de Float.parseFloat
             int reviews = Integer.parseInt(reviewsField.getText());
             String[] amenities = amenitiesField.getText().split(",\\s*"); // Séparer les équipements par des virgules
+            String imageUrl = imageUrlField.getText(); // Récupérer l'URL de l'image
+
+            // Vérifier si l'URL de l'image est vide ou non
+            if (imageUrl.trim().isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Warning", "Image URL is empty. A default image will be used.");
+                imageUrl = "default.jpg"; // Utiliser une image par défaut si l'URL est vide
+            }
 
             Hotel hotel = new Hotel(
                     name,
@@ -337,7 +478,7 @@ public class Dashborad {
                     checkInTime,
                     checkOutTime,
                     lowestRate,
-                    new String[]{"default.jpg"}, // Ajouter une image par défaut si nécessaire
+                    new String[]{imageUrl}, // Ajouter l'URL de l'image
                     overallRating,
                     reviews,
                     amenities,
@@ -350,6 +491,8 @@ public class Dashborad {
                 showAlert(Alert.AlertType.INFORMATION, "Success", "The hotel has been added successfully.");
                 clearForm(); // Réinitialiser le formulaire
                 reloadHotels(); // Recharger la liste des hôtels
+                AddHotel.setVisible(false);
+                scrollpane2.setVisible(true);
             } else {
                 showAlert(Alert.AlertType.ERROR, "Error", "Failed to add the hotel.");
             }
@@ -359,6 +502,7 @@ public class Dashborad {
             showAlert(Alert.AlertType.ERROR, "Error", "An error occurred: " + e.getMessage());
         }
     }
+
 
     private void clearForm() {
         nameField.clear();
@@ -372,9 +516,121 @@ public class Dashborad {
         reviewsField.clear();
         amenitiesField.clear();
     }
+
     @FXML
     private void loadMoreHotels() {
         currentPage++; // Incrémenter la page actuelle
-        displayHotels(hotelService.retrieveAllHotels(1, 15)); // Recharger les hôtels
+
+        // Show loading indicator
+        ProgressIndicator loadingIndicator = new ProgressIndicator();
+        container.getChildren().add(loadingIndicator);
+
+        // Execute the retrieval task in a separate thread
+        Task<List<Hotel>> task = new Task<>() {
+            @Override
+            protected List<Hotel> call() throws Exception {
+                int from = currentPage * PAGE_SIZE; // Index de départ
+                int size = PAGE_SIZE; // Nombre d'hôtels à récupérer
+                return hotelService.retrieveAllHotels(from, size); // Récupérer les hôtels
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            container.getChildren().remove(loadingIndicator); // Remove loading indicator
+            List<Hotel> hotels = task.getValue(); // Récupérer les hôtels récupérés
+            displayHotels(hotels); // Afficher les hôtels
+        });
+
+        task.setOnFailed(event -> {
+            Throwable error = task.getException();
+            container.getChildren().remove(loadingIndicator); // Remove loading indicator
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to retrieve hotels: " + error.getMessage());
+        });
+
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
+    }
+    @FXML
+    private void updateHotel(ActionEvent event) {
+        // Récupérer les données du formulaire
+        String name = nameField1.getText();
+        String link = linkField1.getText();
+        float latitude = Float.parseFloat(latitudeField1.getText());
+        float longitude = Float.parseFloat(longitudeField1.getText());
+        String checkInTime = checkInTimeField1.getText();
+        String checkOutTime = checkOutTimeField1.getText();
+        float lowestRate = Float.parseFloat(lowestRateField1.getText());
+        float overallRating = Float.parseFloat(overallRatingField1.getText());
+        int reviews = Integer.parseInt(reviewsField1.getText());
+        String[] amenities = amenitiesField1.getText().split(", ");
+        String[] image = new String[]{imageUrlField1.getText()};
+
+        System.out.println(hotelId + " " + reviews);
+
+        // Créer un nouvel objet Hotel avec les données mises à jour
+        Hotel updatedHotel = new Hotel(
+                name, link, new Hotel.GpsCoordinates(latitude, longitude),
+                checkInTime, checkOutTime, lowestRate, image, overallRating, reviews, amenities,hotelId
+        );
+
+        // Appeler le service pour mettre à jour l'hôtel dans Elasticsearch
+        boolean isUpdated = hotelService.updateHotel(hotelId,updatedHotel);
+
+        if (isUpdated) {
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Hotel updated successfully!");
+            UpdateHotel.setVisible(false); // Masquer le formulaire après la mise à jour
+            scrollpane2.setVisible(true);
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to update hotel.");
+        }
+    }
+
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        User currentUser = SessionManager.getCurrentUser();
+
+
+        System.out.println(SessionManager.getCurrentUser());
+        System.out.println(currentUser);
+
+        if (currentUser != null) {
+            System.out.println("ok");
+            // Afficher le nom d'utilisateur dans le label
+            usernameLabel.setText(currentUser.getUsername());
+        } else {
+            // Si l'utilisateur n'est pas connecté, afficher un message par défaut
+            usernameLabel.setText("Utilisateur non connecté");
+        }
+        // Créer une tâche pour récupérer les données des trois labels
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                // Récupérer le nombre total d'hôtels
+                Long numberOfHotels = hotelService.getTotalNumberOfHotels();
+
+                // Récupérer le nombre total de reviews
+                Long numberOfReviews = hotelService.getTotalNumberOfReviews(); // Assurez-vous que cette méthode existe
+
+                // Récupérer le nombre total d'utilisateurs
+                Long numberOfUsers = hotelService.getTotalNumberOfUsers(); // Assurez-vous que cette méthode existe
+
+                // Mettre à jour les labels dans le thread JavaFX (UI thread)
+                updateLabel(NumberofHotels, numberOfHotels);
+                updateLabel(numOfReviws, numberOfReviews);
+                updateLabel(numOfUsers, numberOfUsers);
+
+                return null;
+            }
+        };
+
+        // Lancer la tâche dans un thread séparé
+        new Thread(task).start();
+    }
+
+    // Méthode pour mettre à jour un Label dans le thread JavaFX (UI thread)
+    private void updateLabel(Label label, Long value) {
+        Platform.runLater(() -> label.setText(String.valueOf(value)));
     }
 }

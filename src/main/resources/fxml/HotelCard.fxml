@@ -48,16 +48,15 @@
         </Label>
 
         <!-- Button with FontAwesomeIconView -->
-        <Button fx:id="deleteButton" layoutX="874.0" layoutY="127.0" mnemonicParsing="false" onAction="#DeleteHotel" prefWidth="37.0" style="-fx-background-color: red;">
-            <graphic>
-                <FontAwesomeIconView size="18" text="" />
-            </graphic>
-        </Button>
+        <Button fx:id="deleteButton" layoutX="874.0" layoutY="127.0" mnemonicParsing="false" onAction="#DeleteHotel" prefWidth="37.0" style="-fx-background-color: V;">
+         <graphic>
+                <FontAwesomeIconView size="21" text="" />
+         </graphic></Button>
 
         <!-- Button with FontAwesomeIconView -->
-        <Button layoutX="826.0" layoutY="127.0" mnemonicParsing="false" style="-fx-background-color: green;">
+        <Button fx:id="updateButton" layoutX="831.0" layoutY="127.0" mnemonicParsing="false" onAction="#showUpdateHotel" style="-fx-background-color: v;">
             <graphic>
-                <FontAwesomeIconView glyphName="EDIT" size="18" text="" />
+                <FontAwesomeIconView glyphName="EDIT" size="22" text="" />
             </graphic>
         </Button>
         <FlowPane fx:id="amenitiesFlowPane" hgap="10.0" layoutX="223.0" layoutY="87.0" prefHeight="38.0" prefWidth="561.0" vgap="10.0" />

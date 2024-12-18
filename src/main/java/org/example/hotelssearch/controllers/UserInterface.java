@@ -7,6 +7,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -16,6 +17,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
@@ -35,6 +38,7 @@ public class UserInterface {
 
     @FXML
     public Button currentLocationButton;
+    public ComboBox currencyComboBox;
 
     @FXML
     private VBox card;
@@ -47,7 +51,56 @@ public class UserInterface {
 
     @FXML
     private RadioButton rating4To5Stars;
+    @FXML
+    private CheckBox airConditioningCheckBox;
 
+    @FXML
+    private CheckBox balconyCheckBox;
+
+    @FXML
+    private CheckBox kidFriendlyCheckBox;
+
+    @FXML
+    private CheckBox fireplaceCheckBox;
+
+    @FXML
+    private CheckBox fitnessCenterCheckBox;
+
+    @FXML
+    private CheckBox heatingCheckBox;
+
+    @FXML
+    private CheckBox hotTubCheckBox;
+
+    @FXML
+    private CheckBox ironingBoardCheckBox;
+
+    @FXML
+    private CheckBox kitchenCheckBox;
+
+    @FXML
+    private CheckBox microwaveCheckBox;
+
+    @FXML
+    private CheckBox outdoorGrillCheckBox;
+
+    @FXML
+    private CheckBox ovenStoveCheckBox;
+
+    @FXML
+    private CheckBox smokeFreeCheckBox;
+
+    @FXML
+    private CheckBox cableTVCheckBox;
+
+    @FXML
+    private CheckBox washerCheckBox;
+
+    @FXML
+    private CheckBox freeParkingCheckBox;
+
+    @FXML
+    private CheckBox freeWiFiCheckBox;
     @FXML
     private ProgressIndicator voiceRecognitionProgressIndicator;
 
@@ -74,12 +127,6 @@ public class UserInterface {
 
     @FXML
     private Button searchButton;
-
-    @FXML
-    private CheckBox wifiCheckBox;
-
-    @FXML
-    private CheckBox parkingCheckBox;
 
     @FXML
     private CheckBox breakfastCheckBox;
@@ -174,11 +221,28 @@ public class UserInterface {
         rating1To2Stars.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
 
         // Add event listeners for amenities checkboxes
-        wifiCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
-        parkingCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
         breakfastCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
         gymCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
         poolCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
+
+        // Ajoutez les écouteurs pour les nouvelles commodités
+        airConditioningCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
+        balconyCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
+        kidFriendlyCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
+        fireplaceCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
+        fitnessCenterCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
+        heatingCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
+        hotTubCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
+        ironingBoardCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
+        kitchenCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
+        microwaveCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
+        outdoorGrillCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
+        ovenStoveCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
+        smokeFreeCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
+        cableTVCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
+        washerCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
+        freeParkingCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
+        freeWiFiCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> executeSearch());
 
         // Add event listener for the sorting combo box
         sortComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
@@ -187,7 +251,11 @@ public class UserInterface {
                 executeSearch();
             }
         });
-
+        currencyComboBox.valueProperty().addListener((obs, oldCurrency, newCurrency) -> {
+            if (newCurrency != null && !newCurrency.equals(oldCurrency)) {
+                updateHotelPrices((String) newCurrency);
+            }
+        });
         // Add event handler for the search button
         searchButton.setOnAction(event -> {
             try {
@@ -225,7 +293,69 @@ public class UserInterface {
 
         voiceRecognitionProgressIndicator.setVisible(false);
     }
+    private void updateHotelPrices(String targetCurrency) {
 
+        // Iterate through all the hotel cards in the VBox
+        for (Node node : card.getChildren()) {
+            if (node instanceof VBox) {
+                VBox hotelCard = (VBox) node;
+
+                // Find the price label in the hotel card
+                Label priceLabel = findPriceLabel(hotelCard);
+                if (priceLabel != null) {
+                    // Extract the original price from the label text
+                    String priceText = priceLabel.getText();
+                    double originalPrice = extractPriceFromText(priceText);
+
+                    try {
+                        // Convert the price to the target currency
+                        double convertedPrice = HotelService.convertCurrency(targetCurrency, originalPrice);
+                        // Update the price label with the converted price
+                        priceLabel.setText(String.format("%.2f %s per night", convertedPrice, targetCurrency));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        // Handle conversion error (e.g., show a default message)
+                        priceLabel.setText("Price not available");
+                    }
+                } else {
+                    System.err.println("Price label not found in hotel card.");
+                }
+            }
+        }
+    }
+    private Label findPriceLabel(VBox hotelCard) {
+        // Search for the hotelDetailsBox within the hotelCard
+        for (Node node : hotelCard.getChildren()) {
+            if (node instanceof HBox) {
+                HBox hotelInfoBox = (HBox) node;
+                for (Node child : hotelInfoBox.getChildren()) {
+                    if (child instanceof VBox) {
+                        VBox hotelDetailsBox = (VBox) child;
+                        for (Node detailNode : hotelDetailsBox.getChildren()) {
+                            if (detailNode instanceof Label) {
+                                Label label = (Label) detailNode;
+                                if (label.getText().contains("per night")) {
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private double extractPriceFromText(String priceText) {
+        try {
+            // Extract the numeric part of the price
+            String[] parts = priceText.split(" ");
+            return Double.parseDouble(parts[0]);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return 0.0; // Return 0.0 if parsing fails
+        }
+    }
     private void handleSearchNameBarKeyPress(KeyEvent event) {
         if (event.getCode() == KeyCode.DOWN) {
             if (!autocompleteListView.isVisible()) {
@@ -300,17 +430,37 @@ public class UserInterface {
     @FXML
     private void loadMoreHotels() throws Exception {
         currentPage++;
-        List<Hotel> hotels = hotelService.executeQuery(currentSearchTerm, currentMinRating, currentMaxPrice, currentCityName, currentRadiusInKm, currentAmenities, currentPage * PAGE_SIZE, PAGE_SIZE, null);
-        displayHotels(hotels);
-    }
+        List<Hotel> hotels = hotelService.executeQuery(
+                currentSearchTerm,
+                currentMinRating,
+                currentMaxPrice,
+                currentCityName,
+                currentRadiusInKm,
+                currentAmenities,
+                currentPage * PAGE_SIZE,
+                PAGE_SIZE,
+                null
+        );
 
+        // Clear the existing "Load More" button before adding new hotels
+        card.getChildren().removeIf(node -> node instanceof Button && ((Button) node).getText().equals("Load More"));
+
+        // Display the new hotels
+        displayHotels(hotels);
+
+        // Update the prices of the newly added hotels with the currently selected currency
+        updateHotelPrices((String) currencyComboBox.getValue());
+
+        // Add the "Load More" button again
+        addLoadMoreButton();
+    }
     private VBox createHotelCard(Hotel hotel) throws Exception {
         VBox hotelCard = new VBox();
         hotelCard.getStyleClass().add("card");
 
-        HBox hotelInfoBox = new HBox(20);
+        HBox hotelInfoBox = new HBox(10); // Reduce spacing between elements
         hotelInfoBox.setPrefHeight(164);
-        hotelInfoBox.setPrefWidth(638);
+        hotelInfoBox.setPrefWidth(500);
 
         // Create a ListView for the image slider
         ListView<String> imageListView = new ListView<>();
@@ -319,55 +469,62 @@ public class UserInterface {
         imageListView.setCellFactory(param -> new ImageViewCell());
         imageListView.getItems().addAll(hotel.getImages());
 
-        VBox hotelDetailsBox = new VBox(10);
-        hotelDetailsBox.setAlignment(javafx.geometry.Pos.CENTER);
+        VBox hotelDetailsBox = new VBox(5); // Reduce spacing between elements
+        hotelDetailsBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         hotelDetailsBox.setPrefHeight(200);
         hotelDetailsBox.setPrefWidth(208);
 
         Label nameLabel = new Label(hotel.getName());
         nameLabel.getStyleClass().add("label");
 
-        Label priceLabel = new Label(hotel.getLowest_rate() + " per night");
+        Label priceLabel = new Label(hotel.getLowest_rate() + " USD per night"); // Ensure this label is added
         priceLabel.getStyleClass().add("small-label");
 
         Label ratingLabel = new Label(hotel.getOverall_rating() + " stars");
         ratingLabel.getStyleClass().add("small-label");
 
         HBox locationBox = new HBox(5);
-        locationBox.setAlignment(javafx.geometry.Pos.CENTER);
+        locationBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         ImageView locationIcon = new ImageView();
         locationIcon.setFitHeight(15);
         locationIcon.setFitWidth(15);
         locationIcon.getStyleClass().add("icon-view");
         loadImageAsync(locationIcon, "https://cdn-icons-png.flaticon.com/512/684/684908.png");
-        Label locationLabel = new Label(GoogleMapsGeocoding.getDetailedLocation(hotel.getGps_coordinates()));
-        locationLabel.getStyleClass().add("small-label");
-        locationBox.getChildren().addAll(locationIcon, locationLabel);
+
+        // Use a TextFlow to allow text wrapping
+        TextFlow locationTextFlow = new TextFlow();
+        locationTextFlow.getChildren().addAll(new Text(GoogleMapsGeocoding.getDetailedLocation(hotel.getGps_coordinates())));
+        locationTextFlow.setMaxWidth(200); // Set a maximum width for the text flow
+
+        locationBox.getChildren().addAll(locationIcon, locationTextFlow);
 
         HBox distanceBox = new HBox(5);
-        distanceBox.setAlignment(javafx.geometry.Pos.CENTER);
+        distanceBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         ImageView distanceIcon = new ImageView();
         distanceIcon.setFitHeight(15);
         distanceIcon.setFitWidth(15);
         distanceIcon.getStyleClass().add("icon-view");
         loadImageAsync(distanceIcon, "https://cdn-icons-png.flaticon.com/512/109/109613.png");
-        Label distanceLabel = new Label(GoogleMapsGeocoding.calculateDistance(hotel.getGps_coordinates(), GetCurrentPosition.getLocation()) + " km");
+        double distance = GoogleMapsGeocoding.calculateDistance(hotel.getGps_coordinates(), GetCurrentPosition.getLocation());
+        String formattedDistance = String.format("%.2f", distance); // Format the float to 2 decimal places
+        Label distanceLabel = new Label(formattedDistance + " km");
+
         distanceLabel.getStyleClass().add("small-label");
         distanceBox.getChildren().addAll(distanceIcon, distanceLabel);
 
-        hotelDetailsBox.getChildren().addAll(nameLabel, priceLabel, ratingLabel, locationBox, distanceBox);
+        hotelDetailsBox.getChildren().addAll(nameLabel, priceLabel, ratingLabel, locationBox, distanceBox); // Ensure priceLabel is added
 
-        VBox amenitiesBox = new VBox();
-        amenitiesBox.setAlignment(javafx.geometry.Pos.CENTER);
+        VBox amenitiesBox = new VBox(5); // Reduce spacing between elements
+        amenitiesBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         amenitiesBox.setPrefHeight(200);
         amenitiesBox.setPrefWidth(277);
 
-        Label amenitiesLabel = new Label();
+        Label amenitiesLabel = new Label("Amenities: " + String.join(", ", hotel.getAmenities()));
         amenitiesLabel.setAlignment(javafx.geometry.Pos.TOP_LEFT);
         amenitiesLabel.setPrefHeight(163);
         amenitiesLabel.setPrefWidth(205);
         amenitiesLabel.getStyleClass().add("small-label");
-        amenitiesLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+        amenitiesLabel.setTextAlignment(javafx.scene.text.TextAlignment.LEFT);
 
         Button bookNowButton = new Button("Book Now");
         bookNowButton.getStyleClass().add("book-button");
@@ -384,7 +541,11 @@ public class UserInterface {
             }
         });
 
-        amenitiesBox.getChildren().addAll(amenitiesLabel, bookNowButton, showInMapButton);
+        // Add spacing between buttons
+        HBox buttonBox = new HBox(10, bookNowButton, showInMapButton);
+        buttonBox.setAlignment(javafx.geometry.Pos.CENTER);
+
+        amenitiesBox.getChildren().addAll(amenitiesLabel, buttonBox);
 
         hotelInfoBox.getChildren().addAll(imageListView, hotelDetailsBox, amenitiesBox);
 
@@ -582,12 +743,6 @@ public class UserInterface {
 
     private List<String> getSelectedAmenities() {
         List<String> amenities = new ArrayList<>();
-        if (wifiCheckBox.isSelected()) {
-            amenities.add("WiFi");
-        }
-        if (parkingCheckBox.isSelected()) {
-            amenities.add("Parking");
-        }
         if (breakfastCheckBox.isSelected()) {
             amenities.add("Breakfast");
         }
@@ -597,9 +752,60 @@ public class UserInterface {
         if (poolCheckBox.isSelected()) {
             amenities.add("Pool");
         }
+        // Ajoutez les nouvelles commodités ici
+        if (airConditioningCheckBox.isSelected()) {
+            amenities.add("Air conditioning");
+        }
+        if (balconyCheckBox.isSelected()) {
+            amenities.add("Balcony");
+        }
+        if (kidFriendlyCheckBox.isSelected()) {
+            amenities.add("Kid-friendly");
+        }
+        if (fireplaceCheckBox.isSelected()) {
+            amenities.add("Fireplace");
+        }
+        if (fitnessCenterCheckBox.isSelected()) {
+            amenities.add("Fitness center");
+        }
+        if (heatingCheckBox.isSelected()) {
+            amenities.add("Heating");
+        }
+        if (hotTubCheckBox.isSelected()) {
+            amenities.add("Hot tub");
+        }
+        if (ironingBoardCheckBox.isSelected()) {
+            amenities.add("Ironing board");
+        }
+        if (kitchenCheckBox.isSelected()) {
+            amenities.add("Kitchen");
+        }
+        if (microwaveCheckBox.isSelected()) {
+            amenities.add("Microwave");
+        }
+        if (outdoorGrillCheckBox.isSelected()) {
+            amenities.add("Outdoor grill");
+        }
+        if (ovenStoveCheckBox.isSelected()) {
+            amenities.add("Oven stove");
+        }
+        if (smokeFreeCheckBox.isSelected()) {
+            amenities.add("Smoke-free");
+        }
+        if (cableTVCheckBox.isSelected()) {
+            amenities.add("Cable TV");
+        }
+        if (washerCheckBox.isSelected()) {
+            amenities.add("Washer");
+        }
+        if (freeParkingCheckBox.isSelected()) {
+            amenities.add("Free parking");
+        }
+        if (freeWiFiCheckBox.isSelected()) {
+            amenities.add("Free Wi-Fi");
+        }
         return amenities;
     }
-
     private void displayHotels(List<Hotel> hotels) {
         for (Hotel hotel : hotels) {
             try {
@@ -760,6 +966,11 @@ public class UserInterface {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
+      }
+}
+
+
+
+
+
 }
